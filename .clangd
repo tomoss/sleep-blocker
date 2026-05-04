@@ -1,0 +1,23 @@
+CompileFlags:
+  CompilationDatabase: build
+
+  Add:
+    - -Wall
+    - -Wextra
+    - -Wpedantic
+
+Diagnostics:
+  ClangTidy:
+    Add:
+      - modernize-*
+      - performance-*
+      - readability-*
+    Remove:
+      - modernize-use-trailing-return-type
+  UnusedIncludes: Strict
+
+InlayHints:
+  Enabled: true
+
+Hover:
+  ShowAKA: true

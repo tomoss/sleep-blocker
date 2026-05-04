@@ -1,0 +1,301 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base-config",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_EXTENSIONS": "OFF"
+      }
+    },
+    {
+      "name": "base-gcc",
+      "hidden": true,
+      "inherits": "base-config",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion"
+      }
+    },
+    {
+      "name": "base-clang",
+      "hidden": true,
+      "inherits": "base-config",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion"
+      }
+    },
+    {
+      "name": "base-msvc",
+      "hidden": true,
+      "inherits": "base-config",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "/W4",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF"
+      }
+    },
+    {
+      "name": "base-sdl",
+      "hidden": true,
+      "cacheVariables": {
+        "USE_SDL": "ON"
+      }
+    },
+    {
+      "name": "linux-gcc-debug",
+      "displayName": "Linux (GCC, Ninja) - Debug",
+      "inherits": "base-gcc",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-gcc-release",
+      "displayName": "Linux (GCC, Ninja) - Release",
+      "inherits": "base-gcc",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-clang-debug",
+      "displayName": "Linux (Clang, Ninja) - Debug",
+      "inherits": "base-clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-clang-release",
+      "displayName": "Linux (Clang, Ninja) - Release",
+      "inherits": "base-clang",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-gcc-debug-sdl",
+      "displayName": "Linux (GCC, Ninja) - Debug - SDL",
+      "inherits": [
+        "linux-gcc-debug",
+        "base-sdl"
+      ]
+    },
+    {
+      "name": "linux-gcc-release-sdl",
+      "displayName": "Linux (GCC, Ninja) - Release - SDL",
+      "inherits": [
+        "linux-gcc-release",
+        "base-sdl"
+      ]
+    },
+    {
+      "name": "linux-clang-debug-sdl",
+      "displayName": "Linux (Clang, Ninja) - Debug - SDL",
+      "inherits": [
+        "linux-clang-debug",
+        "base-sdl"
+      ]
+    },
+    {
+      "name": "linux-clang-release-sdl",
+      "displayName": "Linux (Clang, Ninja) - Release - SDL",
+      "inherits": [
+        "linux-clang-release",
+        "base-sdl"
+      ]
+    },
+    {
+      "name": "windows-msvc-debug",
+      "displayName": "Windows (MSVC, VS 2022) - Debug",
+      "inherits": "base-msvc",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-msvc-release",
+      "displayName": "Windows (MSVC, VS 2022) - Release",
+      "inherits": "base-msvc",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-msvc-debug-sdl",
+      "displayName": "Windows (MSVC, VS 2022) - Debug - SDL",
+      "inherits": [
+        "windows-msvc-debug",
+        "base-sdl"
+      ]
+    },
+    {
+      "name": "windows-msvc-release-sdl",
+      "displayName": "Windows (MSVC, VS 2022) - Release - SDL",
+      "inherits": [
+        "windows-msvc-release",
+        "base-sdl"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc-debug",
+      "jobs": 0
+    },
+    {
+      "name": "linux-gcc-release",
+      "configurePreset": "linux-gcc-release",
+      "jobs": 0
+    },
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang-debug",
+      "jobs": 0
+    },
+    {
+      "name": "linux-clang-release",
+      "configurePreset": "linux-clang-release",
+      "jobs": 0
+    },
+    {
+      "name": "linux-gcc-debug-sdl",
+      "configurePreset": "linux-gcc-debug-sdl",
+      "jobs": 0
+    },
+    {
+      "name": "linux-gcc-release-sdl",
+      "configurePreset": "linux-gcc-release-sdl",
+      "jobs": 0
+    },
+    {
+      "name": "linux-clang-debug-sdl",
+      "configurePreset": "linux-clang-debug-sdl",
+      "jobs": 0
+    },
+    {
+      "name": "linux-clang-release-sdl",
+      "configurePreset": "linux-clang-release-sdl",
+      "jobs": 0
+    },
+    {
+      "name": "windows-msvc-debug",
+      "configurePreset": "windows-msvc-debug",
+      "configuration": "Debug",
+      "jobs": 0
+    },
+    {
+      "name": "windows-msvc-release",
+      "configurePreset": "windows-msvc-release",
+      "configuration": "Release",
+      "jobs": 0
+    },
+    {
+      "name": "windows-msvc-debug-sdl",
+      "configurePreset": "windows-msvc-debug-sdl",
+      "configuration": "Debug",
+      "jobs": 0
+    },
+    {
+      "name": "windows-msvc-release-sdl",
+      "configurePreset": "windows-msvc-release-sdl",
+      "configuration": "Release",
+      "jobs": 0
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-gcc-debug-sdl",
+      "configurePreset": "linux-gcc-debug-sdl",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-clang-debug-sdl",
+      "configurePreset": "linux-clang-debug-sdl",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-msvc-debug",
+      "configurePreset": "windows-msvc-debug",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-msvc-debug-sdl",
+      "configurePreset": "windows-msvc-debug-sdl",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

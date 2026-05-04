@@ -1,0 +1,112 @@
+name: Build Linux + Windows
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "**.cpp"
+      - "**.hpp"
+      - "**/CMakeLists.txt"
+      - "CMakePresets.json"
+      - ".github/workflows/build.yml"
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "**.cpp"
+      - "**.hpp"
+      - "**/CMakeLists.txt"
+      - "CMakePresets.json"
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # --- Linux GLFW ---
+          - os: ubuntu-latest
+            configure_preset: linux-gcc-debug
+            build_preset: linux-gcc-debug
+
+          - os: ubuntu-latest
+            configure_preset: linux-gcc-release
+            build_preset: linux-gcc-release
+
+          - os: ubuntu-latest
+            configure_preset: linux-clang-debug
+            build_preset: linux-clang-debug
+
+          - os: ubuntu-latest
+            configure_preset: linux-clang-release
+            build_preset: linux-clang-release
+
+          # --- Linux SDL ---
+          - os: ubuntu-latest
+            configure_preset: linux-gcc-debug-sdl
+            build_preset: linux-gcc-debug-sdl
+
+          - os: ubuntu-latest
+            configure_preset: linux-gcc-release-sdl
+            build_preset: linux-gcc-release-sdl
+
+          - os: ubuntu-latest
+            configure_preset: linux-clang-debug-sdl
+            build_preset: linux-clang-debug-sdl
+
+          - os: ubuntu-latest
+            configure_preset: linux-clang-release-sdl
+            build_preset: linux-clang-release-sdl
+
+          # --- Windows GLFW ---
+          - os: windows-latest
+            configure_preset: windows-msvc-debug
+            build_preset: windows-msvc-debug
+
+          - os: windows-latest
+            configure_preset: windows-msvc-release
+            build_preset: windows-msvc-release
+
+          # --- Windows SDL ---
+          - os: windows-latest
+            configure_preset: windows-msvc-debug-sdl
+            build_preset: windows-msvc-debug-sdl
+
+          - os: windows-latest
+            configure_preset: windows-msvc-release-sdl
+            build_preset: windows-msvc-release-sdl
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup CMake and Ninja
+        uses: lukka/get-cmake@latest
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+              libx11-dev \
+              libxrandr-dev \
+              libxinerama-dev \
+              libxcursor-dev \
+              libxi-dev \
+              libxext-dev \
+              libwayland-dev \
+              wayland-protocols \
+              libxkbcommon-dev \
+              libgl1-mesa-dev \
+              libglu1-mesa-dev \
+              libegl1-mesa-dev
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.configure_preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.build_preset }}
+      # - name: Run tests
+      #   if: contains(matrix.configure_preset, 'debug')
+      #   run: ctest --preset ${{ matrix.configure_preset }} --output-on-failure
