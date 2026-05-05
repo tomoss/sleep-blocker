@@ -14,7 +14,7 @@ public:
             std::cerr << "GLFW Error " << p_code << ": " << p_description << "\n";
         });
 
-        if (glfwInit() == GLFW_TRUE)
+        if (glfwInit() != GLFW_TRUE)
             throw std::runtime_error("GLFW initialization failed");
 
         init = true;

@@ -15,10 +15,6 @@ public:
         : m_impl(p_width, p_height, p_title) {
     }
 
-    bool isInit() const {
-        return m_impl.isInit();
-    }
-
     void show() {
         m_impl.show();
     }
@@ -36,19 +32,19 @@ public:
         m_impl.pollEvents(std::move(handler));
     }
 
-    bool shouldClose() const {
+    [[nodiscard]] bool shouldClose() const {
         return m_impl.shouldClose();
     }
 
-    auto nativeHandle() {
+    [[nodiscard]] auto nativeHandle() {
         return m_impl.nativeHandle();
     }
 
-    Impl& backend() {
+    [[nodiscard]] Impl& backend() {
         return m_impl;
     }
 
-    const Impl& backend() const {
+    [[nodiscard]] const Impl& backend() const {
         return m_impl;
     }
 
