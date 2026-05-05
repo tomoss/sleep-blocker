@@ -14,7 +14,7 @@ public:
             std::cerr << "GLFW Error " << p_code << ": " << p_description << "\n";
         });
 
-        if (!glfwInit())
+        if (glfwInit() == GLFW_TRUE)
             throw std::runtime_error("GLFW initialization failed");
 
         init = true;
@@ -27,6 +27,8 @@ public:
 
     GlfwInit(const GlfwInit&) = delete;
     GlfwInit& operator=(const GlfwInit&) = delete;
+    GlfwInit(GlfwInit&&) = delete;
+    GlfwInit& operator=(GlfwInit&&) = delete;
 
 private:
     static inline bool init = false;
