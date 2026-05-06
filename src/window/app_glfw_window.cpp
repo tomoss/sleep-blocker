@@ -47,5 +47,6 @@ GLFWwindow* AppGlfwWindow::nativeHandle() {
 }
 
 AppGlfwWindow::~AppGlfwWindow() {
+    std::cout << "Destroying GLFW window..." << std::endl;
     glfwDestroyWindow(m_window);
 }

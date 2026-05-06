@@ -114,11 +114,16 @@ target_link_libraries(imgui_lib PUBLIC
   OpenGL::GL
 )
 
+set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
+
 # ---------------------------
 # Main executable
 # ---------------------------
 add_executable(sleep-blocker
   src/main.cpp
+  $<IF:$<BOOL:${USE_SDL}>,
+  ${WINDOW_SRC_DIR}/app_sdl_window.cpp,
+  ${WINDOW_SRC_DIR}/app_glfw_window.cpp>
 )
 
 target_include_directories(sleep-blocker PRIVATE
