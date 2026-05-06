@@ -115,6 +115,7 @@ target_link_libraries(imgui_lib PUBLIC
 )
 
 set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
+set(RENDERER_SRC_DIR ${CMAKE_SOURCE_DIR}/src/renderer)
 
 # ---------------------------
 # Main executable
@@ -129,6 +130,7 @@ add_executable(sleep-blocker
 target_include_directories(sleep-blocker PRIVATE
   ${CMAKE_SOURCE_DIR}/include/core
   ${CMAKE_SOURCE_DIR}/include/window
+  ${CMAKE_SOURCE_DIR}/include/renderer
 )
 target_link_libraries(sleep-blocker PRIVATE
   imgui_lib
