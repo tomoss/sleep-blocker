@@ -1,4 +1,5 @@
 #include "app_sdl_window.hpp"
+
 #include <cassert>
 #include <iostream>
 

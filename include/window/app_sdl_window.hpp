@@ -13,7 +13,7 @@ public:
     AppSdlWindow(const AppSdlWindow&) = delete;
     AppSdlWindow& operator=(const AppSdlWindow&) = delete;
 
-    void pollEvents(RendererEvent<SDL_Event> handler = nullptr);
+    void pollEvents(RendererEvent<SDL_Event> p_handler = nullptr);
 
     bool shouldClose() const {
         return m_shouldClose;
