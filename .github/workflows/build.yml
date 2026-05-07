@@ -2,7 +2,7 @@ name: Build Linux + Windows
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev-ci ]
     paths:
       - "**.cpp"
       - "**.hpp"
@@ -10,7 +10,7 @@ on:
       - "CMakePresets.json"
       - ".github/workflows/build.yml"
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev-ci ]
     paths:
       - "**.cpp"
       - "**.hpp"
@@ -27,33 +27,18 @@ jobs:
         include:
           # --- Linux GLFW ---
           - os: ubuntu-latest
-            configure_preset: linux-gcc-debug
-            build_preset: linux-gcc-debug
-
-          - os: ubuntu-latest
             configure_preset: linux-gcc-release
             build_preset: linux-gcc-release
-
-          - os: ubuntu-latest
-            configure_preset: linux-clang-debug
-            build_preset: linux-clang-debug
 
           - os: ubuntu-latest
             configure_preset: linux-clang-release
             build_preset: linux-clang-release
 
           # --- Linux SDL ---
-          - os: ubuntu-latest
-            configure_preset: linux-gcc-debug-sdl
-            build_preset: linux-gcc-debug-sdl
 
           - os: ubuntu-latest
             configure_preset: linux-gcc-release-sdl
             build_preset: linux-gcc-release-sdl
-
-          - os: ubuntu-latest
-            configure_preset: linux-clang-debug-sdl
-            build_preset: linux-clang-debug-sdl
 
           - os: ubuntu-latest
             configure_preset: linux-clang-release-sdl
@@ -61,18 +46,10 @@ jobs:
 
           # --- Windows GLFW ---
           - os: windows-latest
-            configure_preset: windows-msvc-debug
-            build_preset: windows-msvc-debug
-
-          - os: windows-latest
             configure_preset: windows-msvc-release
             build_preset: windows-msvc-release
 
           # --- Windows SDL ---
-          - os: windows-latest
-            configure_preset: windows-msvc-debug-sdl
-            build_preset: windows-msvc-debug-sdl
-
           - os: windows-latest
             configure_preset: windows-msvc-release-sdl
             build_preset: windows-msvc-release-sdl
