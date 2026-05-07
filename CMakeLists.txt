@@ -126,6 +126,8 @@ add_executable(sleep-blocker
   $<IF:$<BOOL:${USE_SDL}>,
   ${WINDOW_SRC_DIR}/app_sdl_window.cpp,
   ${WINDOW_SRC_DIR}/app_glfw_window.cpp>
+  $<$<PLATFORM_ID:Windows>:${APP_SRC_DIR}/windows/sleep_inhibitor.cpp>
+  $<$<PLATFORM_ID:Linux>:${APP_SRC_DIR}/linux/sleep_inhibitor.cpp>
 )
 
 target_include_directories(sleep-blocker PRIVATE
@@ -133,6 +135,7 @@ target_include_directories(sleep-blocker PRIVATE
   ${CMAKE_SOURCE_DIR}/include/window
   ${CMAKE_SOURCE_DIR}/include/renderer
   ${CMAKE_SOURCE_DIR}/include/app
+  ${CMAKE_SOURCE_DIR}/include/utils
 )
 target_link_libraries(sleep-blocker PRIVATE
   imgui_lib
