@@ -13,12 +13,10 @@ public:
     AppGlfwWindow& operator=(const AppGlfwWindow&) = delete;
 
     void pollEvents();
-
     bool shouldClose() const;
-
     void show();
-
     GLFWwindow* nativeHandle();
+    bool windowMinimized();
 
     // OpenGL
     void swapBuffers();

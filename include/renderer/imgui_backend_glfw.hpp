@@ -8,9 +8,7 @@
 
 template<>
 struct ImGuiBackend<AppGlfwWindow> {
-    static bool init(AppGlfwWindow& p_window) {
-        return ImGui_ImplGlfw_InitForOpenGL(p_window.nativeHandle(), true) && ImGui_ImplOpenGL3_Init("#version 130");
-    }
+    static bool init(AppGlfwWindow& p_window) { return ImGui_ImplGlfw_InitForOpenGL(p_window.nativeHandle(), true) && ImGui_ImplOpenGL3_Init("#version 130"); }
     static void shutdown() {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -23,4 +21,6 @@ struct ImGuiBackend<AppGlfwWindow> {
     static void pollEvents(AppGlfwWindow& p_window) {
         p_window.pollEvents(); // GLFW uses callbacks, no per-event processing needed
     }
+
+    static void sleep() { ImGui_ImplGlfw_Sleep(10); }
 };

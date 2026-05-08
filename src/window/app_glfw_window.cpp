@@ -46,6 +46,13 @@ GLFWwindow* AppGlfwWindow::nativeHandle() {
     return m_window;
 }
 
+bool AppGlfwWindow::windowMinimized() {
+    if (glfwGetWindowAttrib(m_window, GLFW_ICONIFIED) != 0) {
+        return true;
+    }
+    return false;
+}
+
 AppGlfwWindow::~AppGlfwWindow() {
     std::cout << "Destroying GLFW window..." << std::endl;
     glfwDestroyWindow(m_window);
