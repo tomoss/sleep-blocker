@@ -14,15 +14,11 @@ public:
     AppSdlWindow& operator=(const AppSdlWindow&) = delete;
 
     void pollEvents(RendererEvent<SDL_Event> p_handler = nullptr);
-
-    bool shouldClose() const {
-        return m_shouldClose;
-    }
-
+    bool shouldClose() const { return m_shouldClose; }
     void show();
-
     SDL_Window* nativeHandle();
     SDL_GLContext glContext();
+    bool windowMinimized();
 
     // OpenGL
     void swapBuffers();

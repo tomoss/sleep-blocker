@@ -61,6 +61,13 @@ void AppSdlWindow::swapBuffers() {
     SDL_GL_SwapWindow(m_window);
 }
 
+bool AppSdlWindow::windowMinimized() {
+    if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) {
+        return true;
+    }
+    return false;
+}
+
 AppSdlWindow::~AppSdlWindow() {
     std::cout << "Destroying SDL window and OpenGL context..." << std::endl;
     SDL_GL_DestroyContext(m_context);

@@ -34,13 +34,9 @@ public:
         m_window.show();
     }
 
-    void pollEvents() {
-        ImGuiBackend<Impl>::pollEvents(m_window.backend());
-    }
+    void pollEvents() { ImGuiBackend<Impl>::pollEvents(m_window.backend()); }
 
-    bool shouldWindowClose() const {
-        return m_window.shouldClose();
-    }
+    bool shouldWindowClose() const { return m_window.shouldClose(); }
 
     ~Renderer() {
         ImGuiBackend<Impl>::shutdown();
@@ -62,9 +58,12 @@ public:
         m_window.swapBuffers();
     }
 
+    void sleep() { ImGuiBackend<Impl>::sleep(); }
+
+    bool isWindowMinimized() { return m_window.windowMinimized(); }
+
 private:
     Window<Impl> m_window;
-    void setupStyle() {
-        /* ... @TODO ... */
-    }
+
+    void setupStyle() { /* ... @TODO ... */ }
 };

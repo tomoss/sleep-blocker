@@ -28,4 +28,6 @@ struct ImGuiBackend<AppSdlWindow> {
             ImGui_ImplSDL3_ProcessEvent(&e);
         });
     }
+
+    static void sleep() { SDL_Delay(10); }
 };

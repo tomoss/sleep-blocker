@@ -8,4 +8,5 @@ concept WindowSystem = requires(T w) {
     { w.nativeHandle() };
     { w.show() } -> std::same_as<void>;
     { w.swapBuffers() } -> std::same_as<void>;
+    { w.windowMinimized() } -> std::convertible_to<bool>;
 };
