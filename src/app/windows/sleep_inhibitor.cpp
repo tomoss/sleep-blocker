@@ -1,35 +1,67 @@
-#include "sleep_inhibitor.hpp"
+﻿#include "sleep_inhibitor.hpp"
 
 #include <iostream>
 #include <windows.h>
 
-
-bool SleepInhibitor::enable() {
-    // ES_CONTINUOUS holds the state until explicitly cleared; without it the flags only apply for the current burst of activity.
-    // ES_SYSTEM_REQUIRED prevents sleep; ES_DISPLAY_REQUIRED prevents the display from turning off.
-    // Returns the previous execution state on success, 0 on failure.
-    EXECUTION_STATE result = SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
-    if (result != 0) {
-        m_enabled = true;
-    } else {
-        std::cerr << "SleepInhibitor::enable: SetThreadExecutionState failed\n";
+SleepInhibitor::SleepInhibitor() {
+    try {
+        m_thread = std::thread(&SleepInhibitor::workerLoop, this);
+    } catch (const std::system_error& e) {
+        throw std::runtime_error(std::string("SleepInhibitor: failed to create worker thread: ") + e.what());
     }
-    return m_enabled;
 }
 
-bool SleepInhibitor::disable() {
-    // ES_CONTINUOUS alone clears all previously set flags, restoring normal power management.
-    EXECUTION_STATE result = SetThreadExecutionState(ES_CONTINUOUS);
-    if (result != 0) {
-        m_enabled = false;
-    } else {
-        std::cerr << "SleepInhibitor::disable: SetThreadExecutionState failed\n";
+SleepInhibitor::~SleepInhibitor() {
+    {
+        std::lock_guard l_lock(m_mutex);
+        m_command = utils::Command::Quit;
     }
-    return !m_enabled;
+    m_cv.notify_one();
+    if (m_thread.joinable()) {
+        m_thread.join();
+    }
 }
 
-bool SleepInhibitor::isEnabled() const {
-    return m_enabled;
+void SleepInhibitor::enable() {
+    {
+        std::lock_guard l_lock(m_mutex);
+        m_command = utils::Command::Enable;
+    }
+    m_cv.notify_one();
+}
+
+void SleepInhibitor::disable() {
+    {
+        std::lock_guard l_lock(m_mutex);
+        m_command = utils::Command::Disable;
+    }
+    m_cv.notify_one();
+}
+
+void SleepInhibitor::workerLoop() {
+    for (;;) {
+        utils::Command l_command;
+        {
+            std::unique_lock lock(m_mutex);
+            m_cv.wait(lock, [this] {
+                return m_command != utils::Command::None;
+            });
+            l_command = std::exchange(m_command, utils::Command::None);
+        }
+
+        if (l_command == utils::Command::Quit) {
+            break;
+        } else if (l_command == utils::Command::Enable) {
+            EXECUTION_STATE result = SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
+            bool l_succes = (result != 0);
+            if (m_onStateChanged)
+                m_onStateChanged(true, l_succes);
+        } else if (l_command == utils::Command::Disable) {
+            SetThreadExecutionState(ES_CONTINUOUS);
+            if (m_onStateChanged)
+                m_onStateChanged(false, true);
+        }
+    }
 }
 
 const char* SleepInhibitor::name() const {

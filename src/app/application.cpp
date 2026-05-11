@@ -1,13 +1,20 @@
-#include "application.hpp"
-
-#include <iostream>
+﻿#include "application.hpp"
 
 constexpr int kWindowWidth = 500;
 constexpr int kWindowHeight = 400;
 constexpr auto kWindowTitle = "SleepBlocker";
 
 Application::Application()
-    : m_renderer(kWindowWidth, kWindowHeight, kWindowTitle) {}
+    : m_renderer(kWindowWidth, kWindowHeight, kWindowTitle) {
+
+    m_sleepInhibitor.setOnStateChanged([this](bool enabled, bool success) {
+        if (enabled) {
+            m_status = success ? utils::Status::Activated : utils::Status::ActivationFailed;
+        } else {
+            m_status = success ? utils::Status::Deactivated : utils::Status::DeactivationFailed;
+        }
+    });
+}
 
 Application::~Application() {}
 
@@ -22,7 +29,6 @@ void Application::run() {
         }
 
         m_renderer.beginFrame();
-        checkFutures();
         renderUI();
         m_renderer.endFrame();
     }
@@ -30,35 +36,21 @@ void Application::run() {
 
 void Application::onActivate() {
     m_status = utils::Status::Activating;
-    m_enableSleepFuture = std::async(std::launch::async, [this] {
-        return m_sleepInhibitor.enable();
-    });
+    m_sleepInhibitor.enable();
 }
 
 void Application::onDeactivate() {
     m_status = utils::Status::Deactivating;
-    m_disableSleepFuture = std::async(std::launch::async, [this] {
-        return m_sleepInhibitor.disable();
-    });
-}
-
-void Application::checkFutures() {
-    auto isReady = [](std::future<bool>& f) {
-        return f.valid() && f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-    };
-
-    if (isReady(m_enableSleepFuture))
-        m_status = m_enableSleepFuture.get() ? utils::Status::Activated : utils::Status::ActivationFailed;
-
-    if (isReady(m_disableSleepFuture))
-        m_status = m_disableSleepFuture.get() ? utils::Status::Deactivated : utils::Status::DeactivationFailed;
+    m_sleepInhibitor.disable();
 }
 
 bool Application::isPending() const {
-    auto notReady = [](const std::future<bool>& f) {
-        return f.valid() && f.wait_for(std::chrono::seconds(0)) != std::future_status::ready;
-    };
-    return notReady(m_enableSleepFuture) || notReady(m_disableSleepFuture);
+    auto l_status = m_status.load();
+    return l_status == utils::Status::Activating || l_status == utils::Status::Deactivating;
+}
+
+bool Application::isActivated() const {
+    return m_status.load() == utils::Status::Activated;
 }
 
 void Application::renderUI() {
@@ -89,14 +81,14 @@ void Application::renderUI() {
     ImGui::Text("Keep Awake");
     ImGui::Separator();
     ImGui::Text("Backend: %s", m_sleepInhibitor.name());
-    ImGui::Text("Status:  %s", utils::toString(m_status));
+    ImGui::Text("Status:  %s", utils::toString(m_status.load()));
     ImGui::Spacing();
     // ImGui::Checkbox("Keep display awake", &m_keepDisplayAwake);
     ImGui::Spacing();
 
     ImGui::BeginDisabled(isPending());
 
-    if (!m_sleepInhibitor.isEnabled()) {
+    if (!isActivated()) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.55f, 0.90f, 0.9f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.35f, 0.65f, 1.00f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.20f, 0.50f, 0.85f, 1.0f));

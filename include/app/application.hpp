@@ -1,11 +1,11 @@
-// application.hpp
+﻿// application.hpp
 #pragma once
 
 #include "renderer.hpp"
 #include "sleep_inhibitor.hpp"
-#include "status.h"
+#include "status.hpp"
 
-#include <future>
+#include <atomic>
 
 #ifdef USE_SDL_BACKEND
 #include "app_sdl_window.hpp"
@@ -33,12 +33,10 @@ private:
     void renderUI();
     void onActivate();
     void onDeactivate();
-    void checkFutures();
     bool isPending() const;
+    bool isActivated() const;
 
     AppRenderer m_renderer;
+    std::atomic<utils::Status> m_status{utils::Status::Deactivated};
     SleepInhibitor m_sleepInhibitor;
-    utils::Status m_status{utils::Status::Deactivated};
-    std::future<bool> m_enableSleepFuture;
-    std::future<bool> m_disableSleepFuture;
 };
