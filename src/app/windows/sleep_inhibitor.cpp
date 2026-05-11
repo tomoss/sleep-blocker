@@ -13,7 +13,7 @@ SleepInhibitor::SleepInhibitor() {
 
 SleepInhibitor::~SleepInhibitor() {
     {
-        std::lock_guard l_lock(m_mutex);
+        std::scoped_lock l_lock(m_mutex);
         m_command = utils::Command::Quit;
     }
     m_cv.notify_one();
@@ -24,7 +24,7 @@ SleepInhibitor::~SleepInhibitor() {
 
 void SleepInhibitor::enable() {
     {
-        std::lock_guard l_lock(m_mutex);
+        std::scoped_lock l_lock(m_mutex);
         m_command = utils::Command::Enable;
     }
     m_cv.notify_one();
@@ -32,7 +32,7 @@ void SleepInhibitor::enable() {
 
 void SleepInhibitor::disable() {
     {
-        std::lock_guard l_lock(m_mutex);
+        std::scoped_lock l_lock(m_mutex);
         m_command = utils::Command::Disable;
     }
     m_cv.notify_one();

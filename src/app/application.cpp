@@ -92,15 +92,17 @@ void Application::renderUI() {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.55f, 0.90f, 0.9f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.35f, 0.65f, 1.00f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.20f, 0.50f, 0.85f, 1.0f));
-        if (ImGui::Button("Activate", ImVec2(kContentWidth, 40.0f)))
+        if (ImGui::Button("Activate", ImVec2(kContentWidth, 40.0f))) {
             onActivate();
+        }
         ImGui::PopStyleColor(3);
     } else {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.80f, 0.25f, 0.25f, 0.9f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.35f, 0.35f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.70f, 0.20f, 0.20f, 1.0f));
-        if (ImGui::Button("Deactivate", ImVec2(kContentWidth, 40.0f)))
+        if (ImGui::Button("Deactivate", ImVec2(kContentWidth, 40.0f))) {
             onDeactivate();
+        }
         ImGui::PopStyleColor(3);
     }
 
