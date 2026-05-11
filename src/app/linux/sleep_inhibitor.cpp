@@ -12,82 +12,138 @@
 #include <unistd.h>
 #include <utility>
 
+namespace {
+
 using BusPtr = std::unique_ptr<sd_bus, decltype(&sd_bus_unref)>;
 
 using MsgPtr = std::unique_ptr<sd_bus_message, decltype(&sd_bus_message_unref)>;
 
-static bool trySystemdInhibit(BusPtr& p_outBus, int& p_outFd) {
-    p_outFd = -1;
+struct InhibitorHandle {
+    BusPtr bus{nullptr, sd_bus_unref};
+    int fd{-1};
+};
 
-    sd_bus_error error = SD_BUS_ERROR_NULL;
+constexpr const char* kLoginService = "org.freedesktop.login1";
+constexpr const char* kLoginObjectPath = "/org/freedesktop/login1";
+constexpr const char* kLoginManagerInterface = "org.freedesktop.login1.Manager";
+constexpr const char* kInhibitMethod = "Inhibit";
+constexpr const char* kInhibitWhat = "sleep:idle";
+constexpr const char* kInhibitorWho = "SleepBlocker";
+constexpr const char* kInhibitorWhy = "Keep system awake";
+constexpr const char* kInhibitMode = "block";
 
-    sd_bus* rawBus = nullptr;
+InhibitorHandle trySystemdInhibit() {
+    sd_bus* l_rawBus = nullptr;
 
-    int r = sd_bus_open_system(&rawBus);
-    if (r < 0) {
-        std::cerr << "SleepInhibitor: failed to open "
-                     "D-Bus system connection: "
-                  << r << std::endl;
+    int l_return = sd_bus_open_system(&l_rawBus);
 
-        return false;
+    if (l_return < 0) {
+        std::cerr << "Sleep Inhibitor failed to open D-Bus system connection: " << l_return << '\n';
+        return {};
     }
 
-    BusPtr busPtr(rawBus, sd_bus_unref);
+    BusPtr l_bus(l_rawBus, sd_bus_unref);
+    sd_bus_message* l_rawReply = nullptr;
 
-    sd_bus_message* rawReply = nullptr;
+    sd_bus_error l_error = SD_BUS_ERROR_NULL;
+    l_return = sd_bus_call_method(l_bus.get(),
+                                  kLoginService,
+                                  kLoginObjectPath,
+                                  kLoginManagerInterface,
+                                  kInhibitMethod,
+                                  &l_error,
+                                  &l_rawReply,
+                                  "ssss",
+                                  kInhibitWhat,
+                                  kInhibitorWho,
+                                  kInhibitorWhy,
+                                  kInhibitMode);
 
-    r = sd_bus_call_method(busPtr.get(), "org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", "Inhibit", &error, &rawReply,
-                           "ssss", "sleep:idle", "SleepBlocker", "Keep system awake", "block");
+    if (l_return < 0) {
+        std::cerr << "Sleep Inhibitor D-Bus call failed: " << l_return << '\n';
 
-    if (r < 0) {
-        std::cerr << "SleepInhibitor: Inhibit D-Bus "
-                     "call failed: "
-                  << r << std::endl;
-
-        if (sd_bus_error_is_set(&error)) {
-            std::cerr << "  Error: " << error.message << std::endl;
+        if (sd_bus_error_is_set(&l_error) != 0) {
+            std::cerr << "Sleep Inhibitor D-Bus error: " << l_error.message << '\n';
         }
 
-        sd_bus_error_free(&error);
-        return false;
+        sd_bus_error_free(&l_error);
+        return {};
     }
 
-    MsgPtr msgPtr(rawReply, sd_bus_message_unref);
+    sd_bus_error_free(&l_error);
 
-    int borrowedFd = -1;
+    MsgPtr msgPtr(l_rawReply, sd_bus_message_unref);
+    int l_borrowedFd = -1;
+    l_return = sd_bus_message_read(msgPtr.get(), "h", &l_borrowedFd);
 
-    r = sd_bus_message_read(msgPtr.get(), "h", &borrowedFd);
-
-    if (r < 0) {
-        std::cerr << "SleepInhibitor: failed to "
-                     "read inhibit fd from reply: "
-                  << r << std::endl;
-
-        sd_bus_error_free(&error);
-        return false;
+    if (l_return < 0) {
+        std::cerr << "Sleep Inhibitor failed to read inhibit fd from reply: " << l_return << '\n';
+        return {};
     }
 
-    const int ownedFd = dup(borrowedFd);
+    const int l_ownedFd = dup(l_borrowedFd);
 
-    sd_bus_error_free(&error);
-
-    if (ownedFd < 0) {
-        std::cerr << "SleepInhibitor: failed to "
-                     "duplicate inhibitor fd: "
-                  << strerror(errno) << std::endl;
-
-        return false;
+    if (l_ownedFd < 0) {
+        std::cerr << "Sleep Inhibitor failed to duplicate inhibitor fd: " << strerror(errno) << '\n';
+        return {};
     }
 
-    std::cerr << "SleepInhibitor: successfully "
-                 "acquired inhibit lock, fd="
-              << ownedFd << std::endl;
+    std::cerr << "Sleep Inhibitor successfully acquired inhibit lock, fd = " << l_ownedFd << '\n';
 
-    p_outBus = std::move(busPtr);
-    p_outFd = ownedFd;
-
-    return true;
+    return {.bus = std::move(l_bus), .fd = l_ownedFd};
 }
+
+utils::Command waitForCommand(std::mutex& p_mutex, std::condition_variable& p_cv, utils::Command& p_command) {
+    std::unique_lock<std::mutex> lock(p_mutex);
+    p_cv.wait(lock, [&p_command] {
+        return p_command != utils::Command::None;
+    });
+    return std::exchange(p_command, utils::Command::None);
+}
+
+void stopInhibitor(InhibitorHandle& p_handle) {
+    if (p_handle.fd < 0) {
+        return;
+    }
+
+    close(p_handle.fd);
+    p_handle.fd = -1;
+    p_handle.bus.reset();
+}
+
+void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb) {
+    if (p_handle.fd >= 0) {
+        if (p_cb) {
+            p_cb(true, true);
+        }
+        return;
+    }
+
+    auto l_handle = trySystemdInhibit();
+    const bool success = l_handle.fd >= 0;
+
+    if (success) {
+        p_handle = std::move(l_handle);
+    }
+
+    if (p_cb) {
+        p_cb(true, success);
+    }
+}
+
+void handleDisable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb) {
+    const bool success = p_handle.fd >= 0;
+
+    if (success) {
+        stopInhibitor(p_handle);
+    }
+
+    if (p_cb) {
+        p_cb(false, success);
+    }
+}
+
+} // namespace
 
 SleepInhibitor::SleepInhibitor() {
     try {
@@ -125,64 +181,19 @@ void SleepInhibitor::disable() {
 }
 
 void SleepInhibitor::workerLoop() {
-    bool enabled = false;
-    BusPtr inhibitorBus(nullptr, sd_bus_unref);
-    int inhibitorFd = -1;
-
-    auto stopInhibitor = [&]() {
-        if (inhibitorFd < 0) {
-            return;
-        }
-
-        close(inhibitorFd);
-        inhibitorFd = -1;
-        inhibitorBus.reset();
-        enabled = false;
-    };
+    InhibitorHandle inhibitor;
 
     for (;;) {
-        utils::Command command;
-        {
-            std::unique_lock lock(m_mutex);
-            m_cv.wait(lock, [this] {
-                return m_command != utils::Command::None;
-            });
-            command = std::exchange(m_command, utils::Command::None);
-        }
+        const auto l_command = waitForCommand(m_mutex, m_cv, m_command);
 
-        if (command == utils::Command::Quit) {
-            stopInhibitor();
+        if (l_command == utils::Command::Quit) {
+            stopInhibitor(inhibitor);
             break;
         }
-
-        if (command == utils::Command::Enable) {
-            if (enabled) {
-                if (m_onStateChanged) {
-                    m_onStateChanged(true, true);
-                }
-                continue;
-            }
-
-            bool success = trySystemdInhibit(inhibitorBus, inhibitorFd);
-            if (success) {
-                enabled = true;
-            }
-
-            if (m_onStateChanged) {
-                m_onStateChanged(true, success);
-            }
-        } else if (command == utils::Command::Disable) {
-            bool success = true;
-
-            if (inhibitorFd >= 0) {
-                stopInhibitor();
-            } else {
-                success = false;
-            }
-
-            if (m_onStateChanged) {
-                m_onStateChanged(false, success);
-            }
+        if (l_command == utils::Command::Enable) {
+            handleEnable(inhibitor, m_onStateChanged);
+        } else if (l_command == utils::Command::Disable) {
+            handleDisable(inhibitor, m_onStateChanged);
         }
     }
 }
