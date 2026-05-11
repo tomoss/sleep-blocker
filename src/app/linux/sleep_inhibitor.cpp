@@ -45,7 +45,7 @@ InhibitorHandle trySystemdInhibit() {
     BusPtr l_bus(l_rawBus, sd_bus_unref);
     sd_bus_message* l_rawReply = nullptr;
 
-    sd_bus_error l_error = SD_BUS_ERROR_NULL;
+    sd_bus_error l_error = {};
     l_return = sd_bus_call_method(l_bus.get(),
                                   kLoginService,
                                   kLoginObjectPath,
@@ -196,8 +196,4 @@ void SleepInhibitor::workerLoop() {
             handleDisable(inhibitor, m_onStateChanged);
         }
     }
-}
-
-const char* SleepInhibitor::name() const {
-    return "Linux";
 }

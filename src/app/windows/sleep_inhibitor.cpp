@@ -63,7 +63,3 @@ void SleepInhibitor::workerLoop() {
         }
     }
 }
-
-const char* SleepInhibitor::name() const {
-    return "Windows";
-}

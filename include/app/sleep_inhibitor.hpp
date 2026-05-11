@@ -17,7 +17,6 @@ public:
     void setOnStateChanged(StateCallback p_callback) { m_onStateChanged = std::move(p_callback); }
     void enable();
     void disable();
-    [[nodiscard]] const char* name() const;
 
 private:
     void workerLoop();

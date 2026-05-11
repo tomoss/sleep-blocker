@@ -1,0 +1,55 @@
+name: Sanitizers CI
+
+on:
+  push:
+    branches: [ main, dev-ci-extra ]
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/sanitizer.yml'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/sanitizer.yml'
+
+jobs:
+  sanitizers:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, thread, undefined]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes -qq \
+            ninja-build clang \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev \
+            libsystemd-dev
+
+      - name: Configure (${{ matrix.sanitizer }} sanitizer)
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_CXX_STANDARD=20
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
+          -DCMAKE_CXX_EXTENSIONS=OFF
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -fsanitize=${{ matrix.sanitizer }} -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=${{ matrix.sanitizer }}"
+
+      - name: Build
+        run: cmake --build build
+
+    #   - name: Run tests
+    #     run: ctest --test-dir build --output-on-failure

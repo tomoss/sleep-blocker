@@ -51,11 +51,6 @@ SDL_Window* AppSdlWindow::nativeHandle() {
     return m_window;
 }
 
-SDL_GLContext AppSdlWindow::glContext() {
-    assert(m_context);
-    return m_context;
-}
-
 void AppSdlWindow::swapBuffers() {
     assert(m_window);
     SDL_GL_SwapWindow(m_window);

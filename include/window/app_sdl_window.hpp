@@ -17,7 +17,6 @@ public:
     bool shouldClose() const { return m_shouldClose; }
     void show();
     SDL_Window* nativeHandle();
-    SDL_GLContext glContext();
     bool windowMinimized();
 
     // OpenGL
