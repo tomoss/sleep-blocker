@@ -74,6 +74,14 @@ find_package(OpenGL REQUIRED)
 # Threads (used on Linux)
 find_package(Threads REQUIRED)
 
+if(UNIX AND NOT APPLE)
+  find_path(SYSTEMD_SD_BUS_INCLUDE_DIR NAMES systemd/sd-bus.h)
+  find_library(SYSTEMD_LIB NAMES systemd)
+  if(NOT SYSTEMD_SD_BUS_INCLUDE_DIR OR NOT SYSTEMD_LIB)
+    message(FATAL_ERROR "systemd sd-bus is required on Linux for the systemd inhibitor backend")
+  endif()
+endif()
+
 # stb (header-only)
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
@@ -140,7 +148,11 @@ target_include_directories(sleep-blocker PRIVATE
 target_link_libraries(sleep-blocker PRIVATE
   imgui_lib
   stb
-  $<$<PLATFORM_ID:Linux>:${CMAKE_DL_LIBS} Threads::Threads>
+  $<$<PLATFORM_ID:Linux>:${CMAKE_DL_LIBS} Threads::Threads ${SYSTEMD_LIB}>
+)
+
+target_include_directories(sleep-blocker PRIVATE
+  $<$<PLATFORM_ID:Linux>:${SYSTEMD_SD_BUS_INCLUDE_DIR}>
 )
 
 # ---------------------------
