@@ -80,6 +80,12 @@ jobs:
               libegl1-mesa-dev \
               libsystemd-dev
 
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/${{ matrix.configure_preset }}/_deps
+          key: ${{ runner.os }}-${{ matrix.configure_preset }}-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+
       - name: Configure
         run: cmake --preset ${{ matrix.configure_preset }}
 
