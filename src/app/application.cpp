@@ -56,7 +56,7 @@ bool Application::isActivated() const {
 void Application::renderUI() {
     const ImGuiViewport* vp = ImGui::GetMainViewport();
     const ImVec2 pMin = vp->WorkPos;
-    const ImVec2 pMax = ImVec2(pMin.x + vp->WorkSize.x, pMin.y + vp->WorkSize.y);
+    // const ImVec2 pMax = ImVec2(pMin.x + vp->WorkSize.x, pMin.y + vp->WorkSize.y);
 
     // if (m_background.isValid()) {
     //     ImGui::GetBackgroundDrawList()->AddImage((ImTextureID)(intptr_t)m_background.id(), pMin, pMax);
