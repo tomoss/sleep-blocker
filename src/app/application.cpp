@@ -61,15 +61,17 @@ void Application::renderUI() {
     // if (m_background.isValid()) {
     //     ImGui::GetBackgroundDrawList()->AddImage((ImTextureID)(intptr_t)m_background.id(), pMin, pMax);
 
-    //     ImGui::GetBackgroundDrawList()->AddRectFilledMultiColor(pMin, pMax, IM_COL32(0, 0, 0, 180), IM_COL32(0, 0, 0, 180), IM_COL32(0, 0, 0, 80),
+    //     ImGui::GetBackgroundDrawList()->AddRectFilledMultiColor(pMin, pMax, IM_COL32(0, 0, 0, 180), IM_COL32(0, 0, 0,
+    //     180), IM_COL32(0, 0, 0, 80),
     //                                                             IM_COL32(0, 0, 0, 80));
     // }
 
     ImGui::SetNextWindowPos(pMin);
     ImGui::SetNextWindowSize(vp->WorkSize);
 
-    constexpr ImGuiWindowFlags kRootFlags =
-        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+    constexpr ImGuiWindowFlags kRootFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                                            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings |
+                                            ImGuiWindowFlags_NoBackground;
 
     ImGui::Begin("Root", nullptr, kRootFlags);
 
@@ -80,7 +82,7 @@ void Application::renderUI() {
 
     ImGui::Text("Keep Awake");
     ImGui::Separator();
-    ImGui::Text("Backend: %s", m_sleepInhibitor.name());
+    // ImGui::Text("Backend: %s", m_sleepInhibitor.name());
     ImGui::Text("Status:  %s", utils::toString(m_status.load()));
     ImGui::Spacing();
     // ImGui::Checkbox("Keep display awake", &m_keepDisplayAwake);
