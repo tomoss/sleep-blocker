@@ -77,7 +77,8 @@ jobs:
               libxkbcommon-dev \
               libgl1-mesa-dev \
               libglu1-mesa-dev \
-              libegl1-mesa-dev
+              libegl1-mesa-dev \
+              libsystemd-dev
 
       - name: Configure
         run: cmake --preset ${{ matrix.configure_preset }}
