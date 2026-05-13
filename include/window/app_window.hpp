@@ -1,0 +1,40 @@
+#pragma once
+
+#include "concepts.hpp"
+
+#include <functional>
+#include <string_view>
+
+template<typename T>
+using RendererEvent = std::function<void(T&)>;
+
+template<WindowSystem Impl>
+class AppWindow {
+public:
+    AppWindow(int p_width, int p_height, std::string_view p_title)
+        : m_impl(p_width, p_height, p_title) {}
+
+    void show() { m_impl.show(); }
+
+    void swapBuffers() { m_impl.swapBuffers(); }
+
+    void pollEvents() { m_impl.pollEvents(); }
+
+    template<typename T>
+    void pollEvents(RendererEvent<T> handler = nullptr) {
+        m_impl.pollEvents(std::move(handler));
+    }
+
+    [[nodiscard]] bool shouldClose() const { return m_impl.shouldClose(); }
+
+    [[nodiscard]] auto nativeHandle() { return m_impl.nativeHandle(); }
+
+    [[nodiscard]] Impl& backend() { return m_impl; }
+
+    [[nodiscard]] const Impl& backend() const { return m_impl; }
+
+    [[nodiscard]] bool windowMinimized() { return m_impl.windowMinimized(); }
+
+private:
+    Impl m_impl;
+};

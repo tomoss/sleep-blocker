@@ -22,9 +22,10 @@ SleepInhibitor::~SleepInhibitor() {
     }
 }
 
-void SleepInhibitor::enable() {
+void SleepInhibitor::enable(bool p_keepDisplayAwake) {
     {
         std::scoped_lock l_lock(m_mutex);
+        m_keepDisplayAwake = p_keepDisplayAwake;
         m_command = utils::Command::Enable;
     }
     m_cv.notify_one();
@@ -41,25 +42,35 @@ void SleepInhibitor::disable() {
 void SleepInhibitor::workerLoop() {
     for (;;) {
         utils::Command l_command;
+        bool l_keepDisplayAwake;
         {
             std::unique_lock lock(m_mutex);
             m_cv.wait(lock, [this] {
                 return m_command != utils::Command::None;
             });
             l_command = std::exchange(m_command, utils::Command::None);
+            l_keepDisplayAwake = m_keepDisplayAwake;
         }
 
-        if (l_command == utils::Command::Quit) {
-            break;
-        } else if (l_command == utils::Command::Enable) {
-            EXECUTION_STATE result = SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
-            bool l_succes = (result != 0);
+        switch (l_command) {
+        case utils::Command::Quit:
+            return;
+        case utils::Command::Enable: {
+            DWORD l_flags = ES_CONTINUOUS | ES_SYSTEM_REQUIRED;
+            if (l_keepDisplayAwake)
+                l_flags |= ES_DISPLAY_REQUIRED;
+            bool l_succes = (SetThreadExecutionState(l_flags) != 0);
             if (m_onStateChanged)
                 m_onStateChanged(true, l_succes);
-        } else if (l_command == utils::Command::Disable) {
+            break;
+        }
+        case utils::Command::Disable:
             SetThreadExecutionState(ES_CONTINUOUS);
             if (m_onStateChanged)
                 m_onStateChanged(false, true);
+            break;
+        default:
+            break;
         }
     }
 }

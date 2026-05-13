@@ -45,7 +45,7 @@ endif()
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.92.7
+  GIT_TAG v1.92.8
 )
 
 # stb
@@ -77,6 +77,7 @@ find_package(Threads REQUIRED)
 if(UNIX AND NOT APPLE)
   find_path(SYSTEMD_SD_BUS_INCLUDE_DIR NAMES systemd/sd-bus.h)
   find_library(SYSTEMD_LIB NAMES systemd)
+
   if(NOT SYSTEMD_SD_BUS_INCLUDE_DIR OR NOT SYSTEMD_LIB)
     message(FATAL_ERROR "systemd sd-bus is required on Linux for the systemd inhibitor backend")
   endif()
