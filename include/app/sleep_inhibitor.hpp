@@ -15,7 +15,7 @@ public:
     ~SleepInhibitor();
 
     void setOnStateChanged(StateCallback p_callback) { m_onStateChanged = std::move(p_callback); }
-    void enable();
+    void enable(bool p_keepDisplayAwake);
     void disable();
 
 private:
@@ -26,4 +26,5 @@ private:
     std::condition_variable m_cv;
     StateCallback m_onStateChanged;
     utils::Command m_command{utils::Command::None};
+    bool m_keepDisplayAwake{false};
 };

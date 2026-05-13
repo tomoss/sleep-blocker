@@ -1,6 +1,6 @@
 #pragma once
 
-#include "window.hpp"
+#include "app_window.hpp"
 #include <SDL3/SDL.h>
 #include <functional>
 #include <string_view>

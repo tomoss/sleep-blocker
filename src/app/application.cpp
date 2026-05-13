@@ -1,7 +1,7 @@
-﻿#include "application.hpp"
+#include "application.hpp"
 
-constexpr int kWindowWidth = 500;
-constexpr int kWindowHeight = 400;
+constexpr int kWindowWidth = 600;
+constexpr int kWindowHeight = 300;
 constexpr auto kWindowTitle = "SleepBlocker";
 
 Application::Application()
@@ -36,7 +36,7 @@ void Application::run() {
 
 void Application::onActivate() {
     m_status = utils::Status::Activating;
-    m_sleepInhibitor.enable();
+    m_sleepInhibitor.enable(m_keepDisplayAwake);
 }
 
 void Application::onDeactivate() {

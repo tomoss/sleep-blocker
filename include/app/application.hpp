@@ -33,10 +33,11 @@ private:
     void renderUI();
     void onActivate();
     void onDeactivate();
-    bool isPending() const;
-    bool isActivated() const;
+    [[nodiscard]] bool isPending() const;
+    [[nodiscard]] bool isActivated() const;
 
     AppRenderer m_renderer;
     std::atomic<utils::Status> m_status{utils::Status::Deactivated};
     SleepInhibitor m_sleepInhibitor;
+    bool m_keepDisplayAwake = false;
 };
