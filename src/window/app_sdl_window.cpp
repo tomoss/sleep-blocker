@@ -26,7 +26,7 @@ AppSdlWindow::AppSdlWindow(int p_width, int p_height, std::string_view p_title) 
     SDL_SetWindowPosition(m_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 }
 
-void AppSdlWindow::pollEvents(RendererEvent<SDL_Event> p_handler) {
+void AppSdlWindow::pollEvents(const RendererEvent<SDL_Event>& p_handler) {
     assert(m_window);
     SDL_Event l_event;
     while (SDL_PollEvent(&l_event)) {
@@ -57,10 +57,7 @@ void AppSdlWindow::swapBuffers() {
 }
 
 bool AppSdlWindow::windowMinimized() {
-    if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) {
-        return true;
-    }
-    return false;
+    return (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0;
 }
 
 AppSdlWindow::~AppSdlWindow() {

@@ -24,18 +24,18 @@ void renderUI(const UIState& state, const UICallbacks& callbacks) {
 
     ImGui::Text("Keep Awake");
     ImGui::Separator();
-    ImGui::Text("Status:  %s", utils::toString(state.status));
+    ImGui::Text("Status:  %s", utils::toString(state.m_status));
     ImGui::Spacing();
     ImGui::Spacing();
 
-    ImGui::BeginDisabled(state.isPending);
+    ImGui::BeginDisabled(state.m_isPending);
 
-    if (!state.isActivated) {
+    if (!state.m_isActivated) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.55f, 0.90f, 0.9f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.35f, 0.65f, 1.00f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.20f, 0.50f, 0.85f, 1.0f));
         if (ImGui::Button("Activate", ImVec2(kContentWidth, 40.0f))) {
-            callbacks.onActivate();
+            callbacks.m_onActivate();
         }
         ImGui::PopStyleColor(3);
     } else {
@@ -43,7 +43,7 @@ void renderUI(const UIState& state, const UICallbacks& callbacks) {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.35f, 0.35f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.70f, 0.20f, 0.20f, 1.0f));
         if (ImGui::Button("Deactivate", ImVec2(kContentWidth, 40.0f))) {
-            callbacks.onDeactivate();
+            callbacks.m_onDeactivate();
         }
         ImGui::PopStyleColor(3);
     }

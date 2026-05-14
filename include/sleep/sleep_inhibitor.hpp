@@ -12,6 +12,10 @@ public:
     using StateCallback = std::function<void(bool enabled, bool success)>;
 
     SleepInhibitor();
+    SleepInhibitor(const SleepInhibitor&) = delete;
+    SleepInhibitor& operator=(const SleepInhibitor&) = delete;
+    SleepInhibitor(SleepInhibitor&&) = delete;
+    SleepInhibitor& operator=(SleepInhibitor&&) = delete;
     ~SleepInhibitor();
 
     void setOnStateChanged(StateCallback p_callback) { m_onStateChanged = std::move(p_callback); }

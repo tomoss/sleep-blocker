@@ -17,11 +17,8 @@ Application::Application()
     });
 }
 
-Application::~Application() {}
-
 void Application::run() {
     while (!m_renderer.shouldWindowClose()) {
-
         m_renderer.pollEvents();
 
         if (m_renderer.isWindowMinimized()) {
@@ -30,15 +27,19 @@ void Application::run() {
         }
 
         m_renderer.beginFrame();
-        renderer::renderUI({.status = m_status.load(), .isPending = isPending(), .isActivated = isActivated()},
-                           {.onActivate =
-                                [this] {
-                                    onActivate();
-                                },
-                            .onDeactivate =
-                                [this] {
-                                    onDeactivate();
-                                }});
+        auto l_status = m_status.load();
+        renderer::renderUI(
+            {.m_status = l_status,
+             .m_isPending = l_status == utils::Status::Activating || l_status == utils::Status::Deactivating,
+             .m_isActivated = l_status == utils::Status::Activated},
+            {.m_onActivate =
+                 [this] {
+                     onActivate();
+                 },
+             .m_onDeactivate =
+                 [this] {
+                     onDeactivate();
+                 }});
 
         m_renderer.endFrame();
     }
@@ -52,13 +53,4 @@ void Application::onActivate() {
 void Application::onDeactivate() {
     m_status = utils::Status::Deactivating;
     m_sleepInhibitor.disable();
-}
-
-bool Application::isPending() const {
-    auto l_status = m_status.load();
-    return l_status == utils::Status::Activating || l_status == utils::Status::Deactivating;
-}
-
-bool Application::isActivated() const {
-    return m_status.load() == utils::Status::Activated;
 }

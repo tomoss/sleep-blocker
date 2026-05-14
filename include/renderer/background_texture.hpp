@@ -9,9 +9,11 @@ public:
 
     BackgroundTexture(const BackgroundTexture&) = delete;
     BackgroundTexture& operator=(const BackgroundTexture&) = delete;
+    BackgroundTexture(BackgroundTexture&&) = delete;
+    BackgroundTexture& operator=(BackgroundTexture&&) = delete;
 
-    bool isValid() const { return m_id != 0; }
-    GLuint id() const { return m_id; }
+    [[nodiscard]] bool isValid() const { return m_id != 0; }
+    [[nodiscard]] GLuint getId() const { return m_id; }
 
 private:
     GLuint m_id = 0;

@@ -1,5 +1,4 @@
-﻿// application.hpp
-#pragma once
+﻿#pragma once
 
 #include "renderer.hpp"
 #include "sleep_inhibitor.hpp"
@@ -20,8 +19,7 @@ using AppRenderer = Renderer<AppGlfwWindow>;
 class Application {
 public:
     Application();
-    ~Application();
-
+    ~Application() = default;
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
     Application(Application&&) = delete;
@@ -32,8 +30,6 @@ public:
 private:
     void onActivate();
     void onDeactivate();
-    [[nodiscard]] bool isPending() const;
-    [[nodiscard]] bool isActivated() const;
 
     AppRenderer m_renderer;
     std::atomic<utils::Status> m_status{utils::Status::Deactivated};
