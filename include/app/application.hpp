@@ -30,7 +30,6 @@ public:
     void run();
 
 private:
-    void renderUI();
     void onActivate();
     void onDeactivate();
     [[nodiscard]] bool isPending() const;

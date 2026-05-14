@@ -11,6 +11,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "app_window.hpp"
+#include "background_texture.hpp"
 #include "imgui_backend.hpp"
 #include <stdexcept>
 #include <string_view>
@@ -50,6 +51,14 @@ public:
     }
 
     void endFrame() {
+        if (m_backgroundTexture.isValid()) {
+            const ImGuiViewport* viewport = ImGui::GetMainViewport();
+            ImGui::GetBackgroundDrawList()->AddImage(
+                (ImTextureID)(intptr_t)m_backgroundTexture.id(),
+                viewport->WorkPos,
+                ImVec2(viewport->WorkPos.x + viewport->WorkSize.x, viewport->WorkPos.y + viewport->WorkSize.y));
+        }
+
         ImGui::Render();
         ImGuiIO& p_io = ImGui::GetIO();
         glViewport(0, 0, static_cast<GLint>(p_io.DisplaySize.x), static_cast<GLint>(p_io.DisplaySize.y));
@@ -65,6 +74,7 @@ public:
 
 private:
     AppWindow<Impl> m_window;
+    BackgroundTexture m_backgroundTexture;
 
     void setupStyle() {
         ImGuiStyle& l_style = ImGui::GetStyle();
