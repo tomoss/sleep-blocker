@@ -1,9 +1,17 @@
 ﻿#include "application.hpp"
 #include "ui.hpp"
 
+#ifdef USE_SDL_BACKEND
+#include "imgui_backend_sdl.hpp"
+#else
+#include "imgui_backend_glfw.hpp"
+#endif
+
 constexpr int kWindowWidth = 600;
 constexpr int kWindowHeight = 300;
 constexpr auto kWindowTitle = "SleepBlocker";
+
+Application::~Application() {}
 
 Application::Application()
     : m_renderer(kWindowWidth, kWindowHeight, kWindowTitle) {
@@ -33,8 +41,8 @@ void Application::run() {
              .m_isPending = l_status == utils::Status::Activating || l_status == utils::Status::Deactivating,
              .m_isActivated = l_status == utils::Status::Activated},
             {.m_onActivate =
-                 [this] {
-                     onActivate();
+                 [this](bool p_keepDisplayAwake) {
+                     onActivate(p_keepDisplayAwake);
                  },
              .m_onDeactivate =
                  [this] {
@@ -45,9 +53,9 @@ void Application::run() {
     }
 }
 
-void Application::onActivate() {
+void Application::onActivate(bool p_keepDisplayAwake) {
     m_status = utils::Status::Activating;
-    m_sleepInhibitor.enable(m_keepDisplayAwake);
+    m_sleepInhibitor.enable(p_keepDisplayAwake);
 }
 
 void Application::onDeactivate() {

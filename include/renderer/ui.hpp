@@ -11,7 +11,7 @@ struct UIState {
 };
 
 struct UICallbacks {
-    std::function<void()> m_onActivate;
+    std::function<void(bool)> m_onActivate;
     std::function<void()> m_onDeactivate;
 };
 

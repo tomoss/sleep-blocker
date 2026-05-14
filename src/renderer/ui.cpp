@@ -1,15 +1,17 @@
 #include "ui.hpp"
 #include "status.hpp"
+#include "widgets.hpp"
+
 #include <imgui.h>
 
 namespace renderer {
 
 void renderUI(const UIState& state, const UICallbacks& callbacks) {
-    const ImGuiViewport* vp = ImGui::GetMainViewport();
-    const ImVec2 pMin = vp->WorkPos;
+    const ImGuiViewport* l_viewpoint = ImGui::GetMainViewport();
+    const ImVec2 pMin = l_viewpoint->WorkPos;
 
     ImGui::SetNextWindowPos(pMin);
-    ImGui::SetNextWindowSize(vp->WorkSize);
+    ImGui::SetNextWindowSize(l_viewpoint->WorkSize);
 
     constexpr ImGuiWindowFlags kRootFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
                                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings |
@@ -22,33 +24,39 @@ void renderUI(const UIState& state, const UICallbacks& callbacks) {
     ImGui::SetCursorPosX((ImGui::GetWindowWidth() - kContentWidth) * 0.5f);
     ImGui::BeginGroup();
 
-    ImGui::Text("Keep Awake");
-    ImGui::Separator();
+    // ImGui::Text("Keep Awake");
+    // ImGui::Separator();
     ImGui::Text("Status:  %s", utils::toString(state.m_status));
     ImGui::Spacing();
     ImGui::Spacing();
 
-    ImGui::BeginDisabled(state.m_isPending);
-
-    if (!state.m_isActivated) {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.55f, 0.90f, 0.9f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.35f, 0.65f, 1.00f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.20f, 0.50f, 0.85f, 1.0f));
-        if (ImGui::Button("Activate", ImVec2(kContentWidth, 40.0f))) {
-            callbacks.m_onActivate();
-        }
-        ImGui::PopStyleColor(3);
-    } else {
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.80f, 0.25f, 0.25f, 0.9f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.90f, 0.35f, 0.35f, 1.0f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.70f, 0.20f, 0.20f, 1.0f));
-        if (ImGui::Button("Deactivate", ImVec2(kContentWidth, 40.0f))) {
-            callbacks.m_onDeactivate();
-        }
-        ImGui::PopStyleColor(3);
-    }
-
+    /////////////////////
+    ImGui::BeginDisabled(state.m_isActivated);
+    ImGuiID l_toggleId = ImGui::GetID("##keepDisplay");
+    ImGuiStorage* l_storage = ImGui::GetStateStorage();
+    bool l_keepDisplayAwake = l_storage->GetBool(l_toggleId, false);
+    l_keepDisplayAwake = widgets::ToggleButton("##keepDisplay", l_keepDisplayAwake);
+    l_storage->SetBool(l_toggleId, l_keepDisplayAwake);
+    ImGui::SameLine();
+    constexpr float kHalf = 0.5F;
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ((ImGui::GetFrameHeight() - ImGui::GetTextLineHeight()) * kHalf));
+    ImGui::Text("Keep display awake");
+    // ImGui::Spacing();
     ImGui::EndDisabled();
+    /////////////////////
+
+    /////////////////////
+    ImGui::BeginDisabled(state.m_isPending);
+    const bool l_buttonClicked =
+        state.m_isActivated ? widgets::ColoredButton("Deactivate", widgets::kRedButton, ImVec2(kContentWidth, 40.0f))
+                            : widgets::ColoredButton("Activate", widgets::kBlueButton, ImVec2(kContentWidth, 40.0f));
+
+    if (l_buttonClicked) {
+        state.m_isActivated ? callbacks.m_onDeactivate() : callbacks.m_onActivate(l_keepDisplayAwake);
+    }
+    ImGui::EndDisabled();
+    /////////////////////
+
     ImGui::EndGroup();
     ImGui::End();
 }
