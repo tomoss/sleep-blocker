@@ -38,8 +38,8 @@ Rendering is performed using OpenGL 3.0 through Dear ImGui's OpenGL backend.
 
 The application uses native operating system APIs to temporarily prevent system sleep:
 
-#### 🖥️ Windows
-Uses the Windows power management API (`SetThreadExecutionState`) to prevent the system from sleeping while the blocker is active.
+* #### 🖥️ Windows
+  * Uses the Windows power management API (`SetThreadExecutionState`) to prevent the system from sleeping while the blocker is active.
 
-#### 🐧 Linux
-Uses `org.freedesktop.login1` (`systemd-logind`) through D-Bus to request a sleep inhibitor, temporarily preventing system suspend while the blocker is active.
+* #### 🐧 Linux
+  * Uses `org.freedesktop.login1` (`systemd-logind`) through D-Bus to request a sleep inhibitor, temporarily preventing system suspend while the blocker is active.

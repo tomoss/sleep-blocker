@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+﻿cmake_minimum_required(VERSION 3.21)
 project(sleep-blocker LANGUAGES CXX)
 
 # ---------------------------
@@ -132,18 +132,18 @@ target_link_libraries(imgui_lib PUBLIC
 # Embed assets
 # ---------------------------
 add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
-    COMMAND ${Python3_EXECUTABLE}
-    ${CMAKE_SOURCE_DIR}/tools/embed_file.py
-    ${CMAKE_SOURCE_DIR}/assets/background.png
-    ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
-    background_image
-    DEPENDS ${CMAKE_SOURCE_DIR}/assets/background.png
-    COMMENT "Embedding background.jpg"
+  OUTPUT ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+  COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_SOURCE_DIR}/tools/embed_file.py
+  ${CMAKE_SOURCE_DIR}/assets/background.png
+  ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+  background_image
+  DEPENDS ${CMAKE_SOURCE_DIR}/assets/background.png
+  COMMENT "Embedding background.jpg"
 )
 
 add_custom_target(embed_assets DEPENDS
-    ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+  ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
 )
 
 set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
@@ -165,6 +165,13 @@ add_executable(sleep-blocker
   $<$<PLATFORM_ID:Windows>:${SLEEP_SRC_DIR}/windows/sleep_inhibitor.cpp>
   $<$<PLATFORM_ID:Linux>:${SLEEP_SRC_DIR}/linux/sleep_inhibitor.cpp>
 )
+
+if(WIN32)
+  set_target_properties(sleep-blocker PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    LINK_FLAGS "/ENTRY:mainCRTStartup"
+  )
+endif()
 
 add_dependencies(sleep-blocker embed_assets)
 
