@@ -45,7 +45,7 @@ endif()
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.92.7
+  GIT_TAG v1.92.8
 )
 
 # stb
@@ -74,9 +74,13 @@ find_package(OpenGL REQUIRED)
 # Threads (used on Linux)
 find_package(Threads REQUIRED)
 
+# Python (used for the generator script)
+find_package(Python3 REQUIRED)
+
 if(UNIX AND NOT APPLE)
   find_path(SYSTEMD_SD_BUS_INCLUDE_DIR NAMES systemd/sd-bus.h)
   find_library(SYSTEMD_LIB NAMES systemd)
+
   if(NOT SYSTEMD_SD_BUS_INCLUDE_DIR OR NOT SYSTEMD_LIB)
     message(FATAL_ERROR "systemd sd-bus is required on Linux for the systemd inhibitor backend")
   endif()
@@ -113,17 +117,39 @@ add_library(imgui_lib STATIC
   ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp,
   ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp>
 )
+
 target_include_directories(imgui_lib PUBLIC
   ${imgui_SOURCE_DIR}
   ${imgui_SOURCE_DIR}/backends
 )
+
 target_link_libraries(imgui_lib PUBLIC
   window_backend
   OpenGL::GL
 )
 
+# ---------------------------
+# Embed assets
+# ---------------------------
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+    COMMAND ${Python3_EXECUTABLE}
+    ${CMAKE_SOURCE_DIR}/tools/embed_file.py
+    ${CMAKE_SOURCE_DIR}/assets/background.png
+    ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+    background_image
+    DEPENDS ${CMAKE_SOURCE_DIR}/assets/background.png
+    COMMENT "Embedding background.jpg"
+)
+
+add_custom_target(embed_assets DEPENDS
+    ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+)
+
 set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
 set(APP_SRC_DIR ${CMAKE_SOURCE_DIR}/src/app)
+set(RENDERER_SRC_DIR ${CMAKE_SOURCE_DIR}/src/renderer)
+set(SLEEP_SRC_DIR ${CMAKE_SOURCE_DIR}/src/sleep)
 
 # ---------------------------
 # Main executable
@@ -131,12 +157,16 @@ set(APP_SRC_DIR ${CMAKE_SOURCE_DIR}/src/app)
 add_executable(sleep-blocker
   ${CMAKE_SOURCE_DIR}/src/main.cpp
   ${APP_SRC_DIR}/application.cpp
+  ${RENDERER_SRC_DIR}/ui.cpp
+  ${RENDERER_SRC_DIR}/background_texture.cpp
   $<IF:$<BOOL:${USE_SDL}>,
   ${WINDOW_SRC_DIR}/app_sdl_window.cpp,
   ${WINDOW_SRC_DIR}/app_glfw_window.cpp>
-  $<$<PLATFORM_ID:Windows>:${APP_SRC_DIR}/windows/sleep_inhibitor.cpp>
-  $<$<PLATFORM_ID:Linux>:${APP_SRC_DIR}/linux/sleep_inhibitor.cpp>
+  $<$<PLATFORM_ID:Windows>:${SLEEP_SRC_DIR}/windows/sleep_inhibitor.cpp>
+  $<$<PLATFORM_ID:Linux>:${SLEEP_SRC_DIR}/linux/sleep_inhibitor.cpp>
 )
+
+add_dependencies(sleep-blocker embed_assets)
 
 target_include_directories(sleep-blocker PRIVATE
   ${CMAKE_SOURCE_DIR}/include/core
@@ -144,6 +174,8 @@ target_include_directories(sleep-blocker PRIVATE
   ${CMAKE_SOURCE_DIR}/include/renderer
   ${CMAKE_SOURCE_DIR}/include/app
   ${CMAKE_SOURCE_DIR}/include/utils
+  ${CMAKE_SOURCE_DIR}/include/sleep
+  ${CMAKE_BINARY_DIR}/generated
 )
 target_link_libraries(sleep-blocker PRIVATE
   imgui_lib

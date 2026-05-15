@@ -12,12 +12,15 @@ public:
     using StateCallback = std::function<void(bool enabled, bool success)>;
 
     SleepInhibitor();
+    SleepInhibitor(const SleepInhibitor&) = delete;
+    SleepInhibitor& operator=(const SleepInhibitor&) = delete;
+    SleepInhibitor(SleepInhibitor&&) = delete;
+    SleepInhibitor& operator=(SleepInhibitor&&) = delete;
     ~SleepInhibitor();
 
     void setOnStateChanged(StateCallback p_callback) { m_onStateChanged = std::move(p_callback); }
-    void enable();
+    void enable(bool p_keepDisplayAwake);
     void disable();
-    [[nodiscard]] const char* name() const;
 
 private:
     void workerLoop();
@@ -27,4 +30,5 @@ private:
     std::condition_variable m_cv;
     StateCallback m_onStateChanged;
     utils::Command m_command{utils::Command::None};
+    bool m_keepDisplayAwake{false};
 };

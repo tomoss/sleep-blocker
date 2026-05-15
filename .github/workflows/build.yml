@@ -27,12 +27,12 @@ jobs:
         include:
           # --- Linux GLFW ---
           - os: ubuntu-latest
-            configure_preset: linux-gcc-release
-            build_preset: linux-gcc-release
+            configure_preset: linux-gcc-release-glfw
+            build_preset: linux-gcc-release-glfw
 
           - os: ubuntu-latest
-            configure_preset: linux-clang-release
-            build_preset: linux-clang-release
+            configure_preset: linux-clang-release-glfw
+            build_preset: linux-clang-release-glfw
 
           # --- Linux SDL ---
 
@@ -46,8 +46,8 @@ jobs:
 
           # --- Windows GLFW ---
           - os: windows-latest
-            configure_preset: windows-msvc-release
-            build_preset: windows-msvc-release
+            configure_preset: windows-msvc-release-glfw
+            build_preset: windows-msvc-release-glfw
 
           # --- Windows SDL ---
           - os: windows-latest
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup CMake and Ninja
         uses: lukka/get-cmake@latest
@@ -81,9 +81,9 @@ jobs:
               libsystemd-dev
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
-          path: build/${{ matrix.configure_preset }}/_deps
+          path: build/${{ matrix.configure_preset }}
           key: ${{ runner.os }}-${{ matrix.configure_preset }}-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
 
       - name: Configure

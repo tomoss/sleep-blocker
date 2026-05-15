@@ -27,12 +27,13 @@ constexpr const char* kLoginService = "org.freedesktop.login1";
 constexpr const char* kLoginObjectPath = "/org/freedesktop/login1";
 constexpr const char* kLoginManagerInterface = "org.freedesktop.login1.Manager";
 constexpr const char* kInhibitMethod = "Inhibit";
-constexpr const char* kInhibitWhat = "sleep:idle";
+constexpr const char* kInhibitSleep = "sleep";
+constexpr const char* kInhibitIdle = "idle";
 constexpr const char* kInhibitorWho = "SleepBlocker";
 constexpr const char* kInhibitorWhy = "Keep system awake";
 constexpr const char* kInhibitMode = "block";
 
-InhibitorHandle trySystemdInhibit() {
+InhibitorHandle trySystemdInhibit(bool p_keepDisplayAwake) {
     sd_bus* l_rawBus = nullptr;
 
     int l_return = sd_bus_open_system(&l_rawBus);
@@ -45,8 +46,12 @@ InhibitorHandle trySystemdInhibit() {
     BusPtr l_bus(l_rawBus, sd_bus_unref);
     sd_bus_message* l_rawReply = nullptr;
 
-    sd_bus_error l_error = SD_BUS_ERROR_NULL;
+    const std::string l_inhibitWhat =
+        p_keepDisplayAwake ? std::string(kInhibitSleep) + ":" + kInhibitIdle : kInhibitSleep;
+
+    sd_bus_error l_error = {};
     l_return = sd_bus_call_method(l_bus.get(),
+
                                   kLoginService,
                                   kLoginObjectPath,
                                   kLoginManagerInterface,
@@ -54,7 +59,7 @@ InhibitorHandle trySystemdInhibit() {
                                   &l_error,
                                   &l_rawReply,
                                   "ssss",
-                                  kInhibitWhat,
+                                  l_inhibitWhat.c_str(),
                                   kInhibitorWho,
                                   kInhibitorWhy,
                                   kInhibitMode);
@@ -93,14 +98,6 @@ InhibitorHandle trySystemdInhibit() {
     return {.bus = std::move(l_bus), .fd = l_ownedFd};
 }
 
-utils::Command waitForCommand(std::mutex& p_mutex, std::condition_variable& p_cv, utils::Command& p_command) {
-    std::unique_lock<std::mutex> lock(p_mutex);
-    p_cv.wait(lock, [&p_command] {
-        return p_command != utils::Command::None;
-    });
-    return std::exchange(p_command, utils::Command::None);
-}
-
 void stopInhibitor(InhibitorHandle& p_handle) {
     if (p_handle.fd < 0) {
         return;
@@ -111,35 +108,35 @@ void stopInhibitor(InhibitorHandle& p_handle) {
     p_handle.bus.reset();
 }
 
-void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb) {
+void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_callback, bool p_keepDisplayAwake) {
     if (p_handle.fd >= 0) {
-        if (p_cb) {
-            p_cb(true, true);
+        if (p_callback) {
+            p_callback(true, true);
         }
         return;
     }
 
-    auto l_handle = trySystemdInhibit();
+    auto l_handle = trySystemdInhibit(p_keepDisplayAwake);
     const bool success = l_handle.fd >= 0;
 
     if (success) {
         p_handle = std::move(l_handle);
     }
 
-    if (p_cb) {
-        p_cb(true, success);
+    if (p_callback) {
+        p_callback(true, success);
     }
 }
 
-void handleDisable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb) {
+void handleDisable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_callback) {
     const bool success = p_handle.fd >= 0;
 
     if (success) {
         stopInhibitor(p_handle);
     }
 
-    if (p_cb) {
-        p_cb(false, success);
+    if (p_callback) {
+        p_callback(false, success);
     }
 }
 
@@ -164,9 +161,10 @@ SleepInhibitor::~SleepInhibitor() {
     }
 }
 
-void SleepInhibitor::enable() {
+void SleepInhibitor::enable(bool p_keepDisplayAwake) {
     {
         std::scoped_lock l_lock(m_mutex);
+        m_keepDisplayAwake = p_keepDisplayAwake;
         m_command = utils::Command::Enable;
     }
     m_cv.notify_one();
@@ -184,20 +182,25 @@ void SleepInhibitor::workerLoop() {
     InhibitorHandle inhibitor;
 
     for (;;) {
-        const auto l_command = waitForCommand(m_mutex, m_cv, m_command);
+        utils::Command l_command;
+        bool l_keepDisplayAwake;
+        {
+            std::unique_lock<std::mutex> l_lock(m_mutex);
+            m_cv.wait(l_lock, [this] {
+                return m_command != utils::Command::None;
+            });
+            l_command = std::exchange(m_command, utils::Command::None);
+            l_keepDisplayAwake = m_keepDisplayAwake;
+        }
 
         if (l_command == utils::Command::Quit) {
             stopInhibitor(inhibitor);
             break;
         }
         if (l_command == utils::Command::Enable) {
-            handleEnable(inhibitor, m_onStateChanged);
+            handleEnable(inhibitor, m_onStateChanged, l_keepDisplayAwake);
         } else if (l_command == utils::Command::Disable) {
             handleDisable(inhibitor, m_onStateChanged);
         }
     }
-}
-
-const char* SleepInhibitor::name() const {
-    return "Linux";
 }

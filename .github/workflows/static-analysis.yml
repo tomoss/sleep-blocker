@@ -1,0 +1,70 @@
+name: Static Analysis
+
+on:
+  push:
+    branches: [ main, dev-ci-extra ]
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/static-analysis.yml'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'include/**'
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/static-analysis.yml'
+
+jobs:
+  scan-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes -qq \
+            ninja-build clang clang-tools \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev \
+            libwayland-dev wayland-protocols libxkbcommon-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libegl1-mesa-dev \
+            libsystemd-dev
+
+      - name: Configure
+        run: cmake --preset linux-clang-debug-glfw
+
+      - name: Run scan-build
+        run: scan-build --status-bugs cmake --build build/linux-clang-debug-glfw
+
+      - name: Upload scan-build report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-build-report
+          path: /tmp/scan-build-*
+          retention-days: 7
+
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --yes -qq cppcheck
+
+      - name: Run cppcheck
+        run: >
+          cppcheck --enable=all --error-exitcode=1
+          --suppress=missingIncludeSystem
+          --suppress=missingInclude
+          "--suppress=knownConditionTrueFalse:include/core/sdl_init.hpp"
+          "--suppress=knownConditionTrueFalse:include/core/glfw_init.hpp"
+          "--suppress=functionStatic:include/renderer/renderer.hpp"
+          -I include -I include/app -I include/core -I include/window -I include/utils -I include/renderer -I include/sleep
+          src

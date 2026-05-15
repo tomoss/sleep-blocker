@@ -1,6 +1,7 @@
 #pragma once
 
-#include "window.hpp"
+#include "app_window.hpp"
+
 #include <SDL3/SDL.h>
 #include <functional>
 #include <string_view>
@@ -12,12 +13,13 @@ public:
 
     AppSdlWindow(const AppSdlWindow&) = delete;
     AppSdlWindow& operator=(const AppSdlWindow&) = delete;
+    AppSdlWindow(AppSdlWindow&&) = delete;
+    AppSdlWindow& operator=(AppSdlWindow&&) = delete;
 
-    void pollEvents(RendererEvent<SDL_Event> p_handler = nullptr);
-    bool shouldClose() const { return m_shouldClose; }
+    void pollEvents(const RendererEvent<SDL_Event>& p_handler = nullptr);
+    [[nodiscard]] bool shouldClose() const { return m_shouldClose; }
     void show();
     SDL_Window* nativeHandle();
-    SDL_GLContext glContext();
     bool windowMinimized();
 
     // OpenGL

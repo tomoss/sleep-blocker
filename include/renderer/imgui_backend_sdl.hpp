@@ -6,11 +6,14 @@
 #include "app_sdl_window.hpp"
 #include "imgui_backend.hpp"
 
+constexpr int kSleepDurationMs = 10;
+
 template<>
 struct ImGuiBackend<AppSdlWindow> {
     static bool init(AppSdlWindow& p_window) {
-        SDL_GLContext ctx = SDL_GL_GetCurrentContext();
-        return ImGui_ImplSDL3_InitForOpenGL(p_window.nativeHandle(), ctx) && ImGui_ImplOpenGL3_Init("#version 130");
+        SDL_GLContext l_context = SDL_GL_GetCurrentContext();
+        return ImGui_ImplSDL3_InitForOpenGL(p_window.nativeHandle(), l_context) &&
+               ImGui_ImplOpenGL3_Init("#version 130");
     }
 
     static void shutdown() {
@@ -29,5 +32,5 @@ struct ImGuiBackend<AppSdlWindow> {
         });
     }
 
-    static void sleep() { SDL_Delay(10); }
+    static void sleep() { SDL_Delay(kSleepDurationMs); }
 };

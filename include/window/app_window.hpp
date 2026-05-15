@@ -9,9 +9,9 @@ template<typename T>
 using RendererEvent = std::function<void(T&)>;
 
 template<WindowSystem Impl>
-class Window {
+class AppWindow {
 public:
-    Window(int p_width, int p_height, std::string_view p_title)
+    AppWindow(int p_width, int p_height, std::string_view p_title)
         : m_impl(p_width, p_height, p_title) {}
 
     void show() { m_impl.show(); }

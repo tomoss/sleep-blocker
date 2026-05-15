@@ -1,7 +1,8 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <iostream>
+#include <stdexcept>
 
 class GlfwInit {
 public:
@@ -14,8 +15,9 @@ public:
             std::cerr << "GLFW Error " << p_code << ": " << p_description << "\n";
         });
 
-        if (glfwInit() != GLFW_TRUE)
+        if (glfwInit() != GLFW_TRUE) {
             throw std::runtime_error("GLFW initialization failed");
+        }
 
         init = true;
     }
