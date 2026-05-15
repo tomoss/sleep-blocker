@@ -27,12 +27,12 @@ jobs:
         include:
           # --- Linux GLFW ---
           - os: ubuntu-latest
-            configure_preset: linux-gcc-release
-            build_preset: linux-gcc-release
+            configure_preset: linux-gcc-release-glfw
+            build_preset: linux-gcc-release-glfw
 
           - os: ubuntu-latest
-            configure_preset: linux-clang-release
-            build_preset: linux-clang-release
+            configure_preset: linux-clang-release-glfw
+            build_preset: linux-clang-release-glfw
 
           # --- Linux SDL ---
 
@@ -46,8 +46,8 @@ jobs:
 
           # --- Windows GLFW ---
           - os: windows-latest
-            configure_preset: windows-msvc-release
-            build_preset: windows-msvc-release
+            configure_preset: windows-msvc-release-glfw
+            build_preset: windows-msvc-release-glfw
 
           # --- Windows SDL ---
           - os: windows-latest
