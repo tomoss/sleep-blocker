@@ -5,6 +5,8 @@
 #include "status.hpp"
 
 #include <atomic>
+#include <chrono>
+#include <optional>
 
 #ifdef USE_SDL_BACKEND
 #include "app_sdl_window.hpp"
@@ -26,10 +28,11 @@ public:
     void run();
 
 private:
-    void onActivate(bool p_keepDisplayAwake);
+    void onActivate(bool p_keepDisplayAwake, int p_timerPresetIdx);
     void onDeactivate();
 
     AppRenderer m_renderer;
     std::atomic<utils::Status> m_status{utils::Status::Deactivated};
     SleepInhibitor m_sleepInhibitor;
+    std::optional<std::chrono::steady_clock::time_point> m_expiresAt;
 };

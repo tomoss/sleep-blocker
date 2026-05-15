@@ -1,4 +1,5 @@
 #pragma once
+
 #include "status.hpp"
 #include <functional>
 
@@ -8,10 +9,11 @@ struct UIState {
     utils::Status m_status;
     bool m_isPending;
     bool m_isActivated;
+    int m_remainingSeconds = -1;
 };
 
 struct UICallbacks {
-    std::function<void(bool)> m_onActivate;
+    std::function<void(bool, int)> m_onActivate;
     std::function<void()> m_onDeactivate;
 };
 
