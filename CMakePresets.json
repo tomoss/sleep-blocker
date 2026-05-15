@@ -47,6 +47,13 @@
       }
     },
     {
+      "name": "base-glfw",
+      "hidden": true,
+      "cacheVariables": {
+        "USE_SDL": "OFF"
+      }
+    },
+    {
       "name": "base-sdl",
       "hidden": true,
       "cacheVariables": {
@@ -55,7 +62,7 @@
     },
     {
       "name": "linux-gcc-debug",
-      "displayName": "Linux (GCC, Ninja) - Debug",
+      "hidden": true,
       "inherits": "base-gcc",
       "condition": {
         "type": "equals",
@@ -69,7 +76,7 @@
     },
     {
       "name": "linux-gcc-release",
-      "displayName": "Linux (GCC, Ninja) - Release",
+      "hidden": true,
       "inherits": "base-gcc",
       "condition": {
         "type": "equals",
@@ -83,7 +90,7 @@
     },
     {
       "name": "linux-clang-debug",
-      "displayName": "Linux (Clang, Ninja) - Debug",
+      "hidden": true,
       "inherits": "base-clang",
       "condition": {
         "type": "equals",
@@ -97,7 +104,7 @@
     },
     {
       "name": "linux-clang-release",
-      "displayName": "Linux (Clang, Ninja) - Release",
+      "hidden": true,
       "inherits": "base-clang",
       "condition": {
         "type": "equals",
@@ -110,40 +117,8 @@
       }
     },
     {
-      "name": "linux-gcc-debug-sdl",
-      "displayName": "Linux (GCC, Ninja) - Debug - SDL",
-      "inherits": [
-        "linux-gcc-debug",
-        "base-sdl"
-      ]
-    },
-    {
-      "name": "linux-gcc-release-sdl",
-      "displayName": "Linux (GCC, Ninja) - Release - SDL",
-      "inherits": [
-        "linux-gcc-release",
-        "base-sdl"
-      ]
-    },
-    {
-      "name": "linux-clang-debug-sdl",
-      "displayName": "Linux (Clang, Ninja) - Debug - SDL",
-      "inherits": [
-        "linux-clang-debug",
-        "base-sdl"
-      ]
-    },
-    {
-      "name": "linux-clang-release-sdl",
-      "displayName": "Linux (Clang, Ninja) - Release - SDL",
-      "inherits": [
-        "linux-clang-release",
-        "base-sdl"
-      ]
-    },
-    {
       "name": "windows-msvc-debug",
-      "displayName": "Windows (MSVC, VS 2022) - Debug",
+      "hidden": true,
       "inherits": "base-msvc",
       "condition": {
         "type": "equals",
@@ -157,7 +132,7 @@
     },
     {
       "name": "windows-msvc-release",
-      "displayName": "Windows (MSVC, VS 2022) - Release",
+      "hidden": true,
       "inherits": "base-msvc",
       "condition": {
         "type": "equals",
@@ -170,41 +145,85 @@
       }
     },
     {
+      "name": "linux-gcc-debug-glfw",
+      "displayName": "Linux (GCC, Ninja) - Debug - GLFW",
+      "inherits": ["linux-gcc-debug", "base-glfw"]
+    },
+    {
+      "name": "linux-gcc-release-glfw",
+      "displayName": "Linux (GCC, Ninja) - Release - GLFW",
+      "inherits": ["linux-gcc-release", "base-glfw"]
+    },
+    {
+      "name": "linux-clang-debug-glfw",
+      "displayName": "Linux (Clang, Ninja) - Debug - GLFW",
+      "inherits": ["linux-clang-debug", "base-glfw"]
+    },
+    {
+      "name": "linux-clang-release-glfw",
+      "displayName": "Linux (Clang, Ninja) - Release - GLFW",
+      "inherits": ["linux-clang-release", "base-glfw"]
+    },
+    {
+      "name": "linux-gcc-debug-sdl",
+      "displayName": "Linux (GCC, Ninja) - Debug - SDL",
+      "inherits": ["linux-gcc-debug", "base-sdl"]
+    },
+    {
+      "name": "linux-gcc-release-sdl",
+      "displayName": "Linux (GCC, Ninja) - Release - SDL",
+      "inherits": ["linux-gcc-release", "base-sdl"]
+    },
+    {
+      "name": "linux-clang-debug-sdl",
+      "displayName": "Linux (Clang, Ninja) - Debug - SDL",
+      "inherits": ["linux-clang-debug", "base-sdl"]
+    },
+    {
+      "name": "linux-clang-release-sdl",
+      "displayName": "Linux (Clang, Ninja) - Release - SDL",
+      "inherits": ["linux-clang-release", "base-sdl"]
+    },
+    {
+      "name": "windows-msvc-debug-glfw",
+      "displayName": "Windows (MSVC, VS 2022) - Debug - GLFW",
+      "inherits": ["windows-msvc-debug", "base-glfw"]
+    },
+    {
+      "name": "windows-msvc-release-glfw",
+      "displayName": "Windows (MSVC, VS 2022) - Release - GLFW",
+      "inherits": ["windows-msvc-release", "base-glfw"]
+    },
+    {
       "name": "windows-msvc-debug-sdl",
       "displayName": "Windows (MSVC, VS 2022) - Debug - SDL",
-      "inherits": [
-        "windows-msvc-debug",
-        "base-sdl"
-      ]
+      "inherits": ["windows-msvc-debug", "base-sdl"]
     },
     {
       "name": "windows-msvc-release-sdl",
       "displayName": "Windows (MSVC, VS 2022) - Release - SDL",
-      "inherits": [
-        "windows-msvc-release",
-        "base-sdl"
-      ]
+      "inherits": ["windows-msvc-release", "base-sdl"]
     }
   ],
   "buildPresets": [
     {
-      "name": "linux-gcc-debug",
-      "configurePreset": "linux-gcc-debug",
+      "name": "linux-gcc-debug-glfw",
+      "configurePreset": "linux-gcc-debug-glfw",
       "jobs": 0
     },
     {
-      "name": "linux-gcc-release",
-      "configurePreset": "linux-gcc-release",
+      "name": "linux-gcc-release-glfw",
+      "configurePreset": "linux-gcc-release-glfw",
       "jobs": 0
     },
     {
-      "name": "linux-clang-debug",
-      "configurePreset": "linux-clang-debug",
+      "name": "linux-clang-debug-glfw",
+      "configurePreset": "linux-clang-debug-glfw",
       "jobs": 0
     },
     {
-      "name": "linux-clang-release",
-      "configurePreset": "linux-clang-release",
+      "name": "linux-clang-release-glfw",
+      "configurePreset": "linux-clang-release-glfw",
       "jobs": 0
     },
     {
@@ -228,14 +247,14 @@
       "jobs": 0
     },
     {
-      "name": "windows-msvc-debug",
-      "configurePreset": "windows-msvc-debug",
+      "name": "windows-msvc-debug-glfw",
+      "configurePreset": "windows-msvc-debug-glfw",
       "configuration": "Debug",
       "jobs": 0
     },
     {
-      "name": "windows-msvc-release",
-      "configurePreset": "windows-msvc-release",
+      "name": "windows-msvc-release-glfw",
+      "configurePreset": "windows-msvc-release-glfw",
       "configuration": "Release",
       "jobs": 0
     },
@@ -254,15 +273,15 @@
   ],
   "testPresets": [
     {
-      "name": "linux-gcc-debug",
-      "configurePreset": "linux-gcc-debug",
+      "name": "linux-gcc-debug-glfw",
+      "configurePreset": "linux-gcc-debug-glfw",
       "output": {
         "outputOnFailure": true
       }
     },
     {
-      "name": "linux-clang-debug",
-      "configurePreset": "linux-clang-debug",
+      "name": "linux-clang-debug-glfw",
+      "configurePreset": "linux-clang-debug-glfw",
       "output": {
         "outputOnFailure": true
       }
@@ -282,8 +301,8 @@
       }
     },
     {
-      "name": "windows-msvc-debug",
-      "configurePreset": "windows-msvc-debug",
+      "name": "windows-msvc-debug-glfw",
+      "configurePreset": "windows-msvc-debug-glfw",
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true

@@ -35,10 +35,10 @@ jobs:
             libsystemd-dev
 
       - name: Configure
-        run: cmake --preset linux-clang-debug
+        run: cmake --preset linux-clang-debug-glfw
 
       - name: Run scan-build
-        run: scan-build --status-bugs cmake --build build/linux-clang-debug
+        run: scan-build --status-bugs cmake --build build/linux-clang-debug-glfw
 
       - name: Upload scan-build report
         if: failure()
