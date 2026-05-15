@@ -108,10 +108,10 @@ void stopInhibitor(InhibitorHandle& p_handle) {
     p_handle.bus.reset();
 }
 
-void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb, bool p_keepDisplayAwake) {
+void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_callback, bool p_keepDisplayAwake) {
     if (p_handle.fd >= 0) {
-        if (p_cb) {
-            p_cb(true, true);
+        if (p_callback) {
+            p_callback(true, true);
         }
         return;
     }
@@ -123,20 +123,20 @@ void handleEnable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback
         p_handle = std::move(l_handle);
     }
 
-    if (p_cb) {
-        p_cb(true, success);
+    if (p_callback) {
+        p_callback(true, success);
     }
 }
 
-void handleDisable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_cb) {
+void handleDisable(InhibitorHandle& p_handle, const SleepInhibitor::StateCallback& p_callback) {
     const bool success = p_handle.fd >= 0;
 
     if (success) {
         stopInhibitor(p_handle);
     }
 
-    if (p_cb) {
-        p_cb(false, success);
+    if (p_callback) {
+        p_callback(false, success);
     }
 }
 
@@ -186,7 +186,9 @@ void SleepInhibitor::workerLoop() {
         bool l_keepDisplayAwake;
         {
             std::unique_lock<std::mutex> l_lock(m_mutex);
-            m_cv.wait(l_lock, [this] { return m_command != utils::Command::None; });
+            m_cv.wait(l_lock, [this] {
+                return m_command != utils::Command::None;
+            });
             l_command = std::exchange(m_command, utils::Command::None);
             l_keepDisplayAwake = m_keepDisplayAwake;
         }

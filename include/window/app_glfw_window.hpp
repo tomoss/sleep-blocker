@@ -1,6 +1,7 @@
 #pragma once
 
 #include "app_window.hpp"
+
 #include <GLFW/glfw3.h>
 #include <string_view>
 
@@ -11,9 +12,11 @@ public:
 
     AppGlfwWindow(const AppGlfwWindow&) = delete;
     AppGlfwWindow& operator=(const AppGlfwWindow&) = delete;
+    AppGlfwWindow(AppGlfwWindow&&) = delete;
+    AppGlfwWindow& operator=(AppGlfwWindow&&) = delete;
 
     void pollEvents();
-    bool shouldClose() const;
+    [[nodiscard]] bool shouldClose() const;
     void show();
     GLFWwindow* nativeHandle();
     bool windowMinimized();

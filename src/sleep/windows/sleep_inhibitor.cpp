@@ -1,6 +1,5 @@
 ﻿#include "sleep_inhibitor.hpp"
 
-#include <iostream>
 #include <windows.h>
 
 SleepInhibitor::SleepInhibitor() {
@@ -45,9 +44,11 @@ void SleepInhibitor::workerLoop() {
         bool l_keepDisplayAwake;
         {
             std::unique_lock lock(m_mutex);
+
             m_cv.wait(lock, [this] {
                 return m_command != utils::Command::None;
             });
+
             l_command = std::exchange(m_command, utils::Command::None);
             l_keepDisplayAwake = m_keepDisplayAwake;
         }
@@ -57,17 +58,26 @@ void SleepInhibitor::workerLoop() {
             return;
         case utils::Command::Enable: {
             DWORD l_flags = ES_CONTINUOUS | ES_SYSTEM_REQUIRED;
-            if (l_keepDisplayAwake)
+
+            if (l_keepDisplayAwake) {
                 l_flags |= ES_DISPLAY_REQUIRED;
-            bool l_succes = (SetThreadExecutionState(l_flags) != 0);
-            if (m_onStateChanged)
-                m_onStateChanged(true, l_succes);
+            }
+
+            bool l_success = (SetThreadExecutionState(l_flags) != 0);
+
+            if (m_onStateChanged) {
+                m_onStateChanged(true, l_success);
+            }
+
             break;
         }
         case utils::Command::Disable:
             SetThreadExecutionState(ES_CONTINUOUS);
-            if (m_onStateChanged)
+
+            if (m_onStateChanged) {
                 m_onStateChanged(false, true);
+            }
+
             break;
         default:
             break;
