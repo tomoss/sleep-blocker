@@ -68,7 +68,7 @@ jobs:
         shell: bash
         run: |
           if [ "${{ runner.os }}" = "Windows" ]; then
-            cp build/${{ matrix.configure_preset }}/sleep-blocker.exe ${{ matrix.artifact_name }}
+            cp build/${{ matrix.configure_preset }}/Release/sleep-blocker.exe ${{ matrix.artifact_name }}
           else
             cp build/${{ matrix.configure_preset }}/sleep-blocker ${{ matrix.artifact_name }}
           fi
