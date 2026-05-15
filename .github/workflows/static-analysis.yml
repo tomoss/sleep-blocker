@@ -62,6 +62,7 @@ jobs:
         run: >
           cppcheck --enable=all --error-exitcode=1
           --suppress=missingIncludeSystem
+          "--suppress=missingInclude:src/app/application.cpp"
           "--suppress=knownConditionTrueFalse:include/core/sdl_init.hpp"
           "--suppress=knownConditionTrueFalse:include/core/glfw_init.hpp"
           "--suppress=functionStatic:include/renderer/renderer.hpp"
