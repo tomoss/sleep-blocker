@@ -164,6 +164,7 @@ add_executable(sleep-blocker
   ${WINDOW_SRC_DIR}/app_glfw_window.cpp>
   $<$<PLATFORM_ID:Windows>:${SLEEP_SRC_DIR}/windows/sleep_inhibitor.cpp>
   $<$<PLATFORM_ID:Linux>:${SLEEP_SRC_DIR}/linux/sleep_inhibitor.cpp>
+  $<$<PLATFORM_ID:Windows>:${CMAKE_SOURCE_DIR}/resources/app.rc>
 )
 
 if(WIN32)
