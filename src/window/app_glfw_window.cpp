@@ -1,5 +1,8 @@
 #include "app_glfw_window.hpp"
 
+#include "icon_img_data.hpp"
+#include "stb_image.h"
+
 #include <cassert>
 #include <iostream>
 #include <string_view>
@@ -19,6 +22,15 @@ AppGlfwWindow::AppGlfwWindow(int p_width, int p_height, std::string_view p_title
 
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(1); // Enable vsync
+
+    int l_icon_width, l_icon_height, l_icon_channels;
+    unsigned char* l_pixels = stbi_load_from_memory(
+        icon_image, static_cast<int>(icon_image_len), &l_icon_width, &l_icon_height, &l_icon_channels, 4);
+    if (l_pixels) {
+        GLFWimage l_img{l_icon_width, l_icon_height, l_pixels};
+        glfwSetWindowIcon(m_window, 1, &l_img);
+        stbi_image_free(l_pixels);
+    }
 }
 
 bool AppGlfwWindow::shouldClose() const {

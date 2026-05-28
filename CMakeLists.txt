@@ -139,11 +139,23 @@ add_custom_command(
   ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
   background_image
   DEPENDS ${CMAKE_SOURCE_DIR}/assets/background.png
-  COMMENT "Embedding background.jpg"
+  COMMENT "Embedding background.png"
+)
+
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
+  COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_SOURCE_DIR}/tools/embed_file.py
+  ${CMAKE_SOURCE_DIR}/assets/icon.png
+  ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
+  icon_image
+  DEPENDS ${CMAKE_SOURCE_DIR}/assets/icon.png
+  COMMENT "Embedding icon.png"
 )
 
 add_custom_target(embed_assets DEPENDS
   ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+  ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
 )
 
 set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
@@ -164,6 +176,7 @@ add_executable(sleep-blocker
   ${WINDOW_SRC_DIR}/app_glfw_window.cpp>
   $<$<PLATFORM_ID:Windows>:${SLEEP_SRC_DIR}/windows/sleep_inhibitor.cpp>
   $<$<PLATFORM_ID:Linux>:${SLEEP_SRC_DIR}/linux/sleep_inhibitor.cpp>
+  $<$<PLATFORM_ID:Windows>:${CMAKE_SOURCE_DIR}/resources/app.rc>
 )
 
 if(WIN32)

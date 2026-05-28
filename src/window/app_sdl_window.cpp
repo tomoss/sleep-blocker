@@ -1,5 +1,8 @@
 #include "app_sdl_window.hpp"
 
+#include "icon_img_data.hpp"
+#include "stb_image.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -24,6 +27,19 @@ AppSdlWindow::AppSdlWindow(int p_width, int p_height, std::string_view p_title) 
     SDL_GL_MakeCurrent(m_window, m_context);
     SDL_GL_SetSwapInterval(1);
     SDL_SetWindowPosition(m_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+    int l_icon_width, l_icon_height, l_icon_channels;
+    unsigned char* l_pixels = stbi_load_from_memory(
+        icon_image, static_cast<int>(icon_image_len), &l_icon_width, &l_icon_height, &l_icon_channels, 4);
+    if (l_pixels) {
+        SDL_Surface* l_surface =
+            SDL_CreateSurfaceFrom(l_icon_width, l_icon_height, SDL_PIXELFORMAT_RGBA32, l_pixels, l_icon_width * 4);
+        if (l_surface) {
+            SDL_SetWindowIcon(m_window, l_surface);
+            SDL_DestroySurface(l_surface);
+        }
+        stbi_image_free(l_pixels);
+    }
 }
 
 void AppSdlWindow::pollEvents(const RendererEvent<SDL_Event>& p_handler) {

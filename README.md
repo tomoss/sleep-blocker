@@ -43,3 +43,7 @@ The application uses native operating system APIs to temporarily prevent system 
 
 * #### 🐧 Linux
   * Uses `org.freedesktop.login1` (`systemd-logind`) through D-Bus to request a sleep inhibitor, temporarily preventing system suspend while the blocker is active.
+
+---
+
+<a href="https://www.flaticon.com/free-icons/pineapple" title="pineapple icons">Pineapple icons created by Freepik - Flaticon</a>
