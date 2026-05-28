@@ -139,11 +139,23 @@ add_custom_command(
   ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
   background_image
   DEPENDS ${CMAKE_SOURCE_DIR}/assets/background.png
-  COMMENT "Embedding background.jpg"
+  COMMENT "Embedding background.png"
+)
+
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
+  COMMAND ${Python3_EXECUTABLE}
+  ${CMAKE_SOURCE_DIR}/tools/embed_file.py
+  ${CMAKE_SOURCE_DIR}/assets/icon.png
+  ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
+  icon_image
+  DEPENDS ${CMAKE_SOURCE_DIR}/assets/icon.png
+  COMMENT "Embedding icon.png"
 )
 
 add_custom_target(embed_assets DEPENDS
   ${CMAKE_BINARY_DIR}/generated/background_img_data.hpp
+  ${CMAKE_BINARY_DIR}/generated/icon_img_data.hpp
 )
 
 set(WINDOW_SRC_DIR ${CMAKE_SOURCE_DIR}/src/window)
