@@ -125,7 +125,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -139,7 +139,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -186,22 +186,22 @@
     },
     {
       "name": "windows-msvc-debug-glfw",
-      "displayName": "Windows (MSVC, VS 2022) - Debug - GLFW",
+      "displayName": "Windows (MSVC, VS 2026) - Debug - GLFW",
       "inherits": ["windows-msvc-debug", "base-glfw"]
     },
     {
       "name": "windows-msvc-release-glfw",
-      "displayName": "Windows (MSVC, VS 2022) - Release - GLFW",
+      "displayName": "Windows (MSVC, VS 2026) - Release - GLFW",
       "inherits": ["windows-msvc-release", "base-glfw"]
     },
     {
       "name": "windows-msvc-debug-sdl",
-      "displayName": "Windows (MSVC, VS 2022) - Debug - SDL",
+      "displayName": "Windows (MSVC, VS 2026) - Debug - SDL",
       "inherits": ["windows-msvc-debug", "base-sdl"]
     },
     {
       "name": "windows-msvc-release-sdl",
-      "displayName": "Windows (MSVC, VS 2022) - Release - SDL",
+      "displayName": "Windows (MSVC, VS 2026) - Release - SDL",
       "inherits": ["windows-msvc-release", "base-sdl"]
     }
   ],
